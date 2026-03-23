@@ -1,16 +1,33 @@
-export default function Home() {
+import Navbar from '@/components/shared/navbar'
+import Footer from '@/components/shared/footer'
+import HeroSection from '@/components/home/hero-section'
+import ExperienceSection from '@/components/home/experience-section'
+import GallerySection from '@/components/home/gallery-section'
+import RoomsSection from '@/components/home/rooms-section'
+import AmenitiesSection from '@/components/home/amenities-section'
+import PricingSection from '@/components/home/pricing-section'
+import RulesSection from '@/components/home/rules-section'
+import LocationSection from '@/components/home/location-section'
+import TestimonialsSection from '@/components/home/testimonials-section'
+import FaqSection from '@/components/home/faq-section'
+import FinalCtaSection from '@/components/home/final-cta-section'
+
+export default function HomePage() {
   return (
-    <div className="flex min-h-screen items-center justify-center font-sans">
-      <main className="flex w-full max-w-3xl flex-col items-center gap-8 px-6 py-16 text-center sm:items-start sm:text-left">
-        <div className="flex flex-col gap-4">
-          <h1 className="text-4xl font-bold tracking-tight">
-            RonnyCabana
-          </h1>
-          <p className="max-w-md text-lg text-muted-foreground">
-            To get started, send a prompt or modify this page directly.
-          </p>
-        </div>
-      </main>
-    </div>
-  );
+    <main>
+      <Navbar />
+      <HeroSection />
+      <ExperienceSection />
+      <GallerySection />
+      <RoomsSection />
+      <AmenitiesSection />
+      <PricingSection />
+      <RulesSection />
+      <LocationSection />
+      <TestimonialsSection />
+      <FaqSection />
+      <FinalCtaSection />
+      <Footer />
+    </main>
+  )
 }
