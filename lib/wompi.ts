@@ -1,109 +1,121 @@
-/**
- * Wompi payment integration utilities
- * Handles checkout creation and webhook validation
- * All sensitive keys should be in environment variables
- */
-
-const WOMPI_API_BASE = 'https://gql.wombipay.com/graphql'
-const WOMPI_CHECKOUT_BASE = process.env.WOMPI_ENV === 'sandbox' 
-  ? 'https://checkout.wompi.co/sandbox'
-  : 'https://checkout.wompi.co'
+import crypto from 'crypto'
 
 /**
- * Creates a Wompi checkout session for the reservation
- * Requires env vars: WOMPI_PUBLIC_KEY, WOMPI_PRIVATE_KEY
+ * Wompi sandbox integration helpers for ALAMAR HOUSE.
+ *
+ * Required environment variables (set in Vercel project settings or .env.local):
+ *   NEXT_PUBLIC_WOMPI_PUBLIC_KEY  — Public key (safe to expose client-side)
+ *   WOMPI_PRIVATE_KEY             — Private key (server-side only, never expose)
+ *   WOMPI_INTEGRITY_KEY           — Integrity key for signature generation
+ *   WOMPI_EVENTS_KEY              — Events key for webhook signature validation
+ *   WOMPI_ENV                     — "sandbox" | "production"
+ *   NEXT_PUBLIC_BASE_URL          — Base URL of the deployed site (e.g. https://alamarhouse.co)
+ *
+ * To go live: set WOMPI_ENV=production and replace all sandbox keys with production keys.
  */
-export async function createWompiCheckout(reservationData: {
+
+export const WOMPI_ENV = process.env.WOMPI_ENV ?? 'sandbox'
+
+export interface ReservationPayload {
   fullName: string
   email: string
   phone: string
   checkIn: string
   checkOut: string
-  nights: number
-  totalAmount: number
-  pricePerNight: number
-  guests: number
+  guests: string
   message?: string
-}) {
-  const publicKey = process.env.NEXT_PUBLIC_WOMPI_PUBLIC_KEY
-  const privateKey = process.env.WOMPI_PRIVATE_KEY
+  amountInCents: number
+  reference: string
+}
 
-  if (!publicKey || !privateKey) {
-    throw new Error('Missing Wompi API keys in environment variables')
+/**
+ * Generates a unique reservation reference in the format ALAMAR-{timestamp}-{random}.
+ */
+export function generateReference(): string {
+  const timestamp = Date.now()
+  const random = Math.random().toString(36).substring(2, 7).toUpperCase()
+  return `ALAMAR-${timestamp}-${random}`
+}
+
+/**
+ * Converts a COP amount to centavos (Wompi requires amounts in the smallest unit).
+ */
+export function toCents(amountCOP: number): number {
+  return amountCOP * 100
+}
+
+/**
+ * Generates the Wompi integrity signature required for the hosted checkout widget.
+ * Formula: SHA256( reference + amountInCents + currency + integrityKey )
+ * See: https://docs.wompi.co/docs/en/widget-checkout-web#integrity
+ */
+export function generateIntegritySignature(
+  reference: string,
+  amountInCents: number,
+  currency: string = 'COP'
+): string {
+  const integrityKey = process.env.WOMPI_INTEGRITY_KEY
+  if (!integrityKey) {
+    throw new Error('WOMPI_INTEGRITY_KEY is not set. Add it to your environment variables.')
+  }
+  const stringToHash = `${reference}${amountInCents}${currency}${integrityKey}`
+  return crypto.createHash('sha256').update(stringToHash).digest('hex')
+}
+
+/**
+ * Validates an incoming Wompi webhook event signature.
+ * Formula: SHA256( timestamp + transactionId + status + eventsKey )
+ * See: https://docs.wompi.co/docs/en/eventos
+ */
+export function validateWebhookSignature(
+  checksum: string,
+  transactionId: string,
+  status: string,
+  timestamp: number
+): boolean {
+  const eventsKey = process.env.WOMPI_EVENTS_KEY
+  if (!eventsKey) return false
+  const stringToHash = `${timestamp}${transactionId}${status}${eventsKey}`
+  const computed = crypto.createHash('sha256').update(stringToHash).digest('hex')
+  return computed === checksum
+}
+
+/**
+ * Builds the Wompi hosted checkout redirect URL with all required parameters.
+ * The user is sent here to complete payment on Wompi's secure hosted page.
+ */
+export function buildCheckoutUrl(payload: ReservationPayload): string {
+  const publicKey = process.env.NEXT_PUBLIC_WOMPI_PUBLIC_KEY
+  if (!publicKey) {
+    throw new Error('NEXT_PUBLIC_WOMPI_PUBLIC_KEY is not set. Add it to your environment variables.')
   }
 
-  // Generate a unique reference for this reservation
-  const timestamp = Date.now()
-  const random = Math.random().toString(36).substring(2, 9)
-  const reference = `ALAMAR-${timestamp}-${random}`
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000'
+  const redirectUrl = `${baseUrl}/pago/resultado`
+  const signature = generateIntegritySignature(payload.reference, payload.amountInCents)
 
-  // Amount in cents for Wompi (COP is already in whole units)
-  const amountInCents = Math.round(reservationData.totalAmount * 100)
-
-  // TODO: Store reservation data in database with reference
-  console.log('[v0] Creating Wompi checkout for reference:', reference)
-  console.log('[v0] Amount:', reservationData.totalAmount, 'COP')
-
-  // Create checkout URL with reference and amount
-  const checkoutParams = new URLSearchParams({
-    public_key: publicKey,
-    amount_in_cents: String(amountInCents),
+  const params = new URLSearchParams({
+    'public-key': publicKey,
     currency: 'COP',
-    reference: reference,
-    redirect_url: `${process.env.NEXT_PUBLIC_BASE_URL}/pago/resultado?reference=${reference}`,
-    customer_email: reservationData.email,
-    customer_phone_number: reservationData.phone,
-    customer_full_name: reservationData.fullName,
+    'amount-in-cents': payload.amountInCents.toString(),
+    reference: payload.reference,
+    'signature:integrity': signature,
+    'customer-data:email': payload.email,
+    'customer-data:full-name': payload.fullName,
+    'customer-data:phone-number': payload.phone,
+    'redirect-url': redirectUrl,
   })
 
-  const checkoutUrl = `${WOMPI_CHECKOUT_BASE}?${checkoutParams.toString()}`
-
-  return {
-    reference,
-    checkoutUrl,
-    amount: reservationData.totalAmount,
-    reservation: {
-      fullName: reservationData.fullName,
-      email: reservationData.email,
-      phone: reservationData.phone,
-      checkIn: reservationData.checkIn,
-      checkOut: reservationData.checkOut,
-      nights: reservationData.nights,
-      guests: reservationData.guests,
-      message: reservationData.message || '',
-    },
-  }
+  return `https://checkout.wompi.co/p/?${params.toString()}`
 }
 
 /**
- * Validates webhook signature from Wompi
- * Wompi sends a signature header for verification
+ * Wompi transaction status as returned in webhook events and query params.
  */
-export async function validateWebhookSignature(
-  eventBody: string,
-  signature: string | undefined
-): Promise<boolean> {
-  const eventsKey = process.env.WOMPI_EVENTS_KEY
-
-  if (!eventsKey || !signature) {
-    console.warn('[v0] Missing events key or signature')
-    return false
-  }
-
-  // TODO: Implement proper HMAC signature validation
-  // For sandbox testing, accept all events
-  if (process.env.WOMPI_ENV === 'sandbox') {
-    return true
-  }
-
-  // In production, validate the signature properly
-  // This is a placeholder - implement with crypto module
-  console.log('[v0] Signature validation not fully implemented')
-  return true
-}
+export type TransactionStatus = 'APPROVED' | 'PENDING' | 'DECLINED' | 'ERROR'
 
 /**
- * Parses and validates a Wompi webhook event
+ * Shape of a Wompi webhook event body.
  */
 export interface WompiWebhookEvent {
   event: string
@@ -111,90 +123,17 @@ export interface WompiWebhookEvent {
     transaction: {
       id: string
       reference: string
-      status: 'APPROVED' | 'PENDING' | 'DECLINED' | 'ERROR'
+      status: TransactionStatus
       amount_in_cents: number
-      payment_method: string
       created_at: string
-      [key: string]: any
+      [key: string]: unknown
     }
-    [key: string]: any
   }
-  [key: string]: any
-}
-
-export function parseWompiEvent(body: any): WompiWebhookEvent | null {
-  try {
-    if (!body.data?.transaction?.reference) {
-      console.warn('[v0] Invalid Wompi event structure')
-      return null
-    }
-    return body as WompiWebhookEvent
-  } catch (error) {
-    console.error('[v0] Error parsing Wompi event:', error)
-    return null
+  sent_at: string
+  timestamp: number
+  signature: {
+    checksum: string
+    properties: string[]
   }
 }
 
-/**
- * Handles a Wompi transaction status update
- * TODO: Connect to database to update reservation status
- */
-export async function handleTransactionUpdate(event: WompiWebhookEvent) {
-  const { reference, status, id } = event.data.transaction
-
-  console.log('[v0] Transaction update:', {
-    reference,
-    status,
-    id,
-    timestamp: new Date().toISOString(),
-  })
-
-  // TODO: Database operation example:
-  // const reservation = await db.reservation.findUnique({ where: { reference } })
-  // await db.reservation.update({
-  //   where: { reference },
-  //   data: { paymentStatus: status, wompiTransactionId: id }
-  // })
-
-  switch (status) {
-    case 'APPROVED':
-      console.log('[v0] Payment approved for reservation:', reference)
-      // Send confirmation email, create booking, etc.
-      break
-    case 'PENDING':
-      console.log('[v0] Payment pending for reservation:', reference)
-      // Send pending notification
-      break
-    case 'DECLINED':
-      console.log('[v0] Payment declined for reservation:', reference)
-      // Send declined notification, allow retry
-      break
-    case 'ERROR':
-      console.log('[v0] Payment error for reservation:', reference)
-      // Send error notification, allow retry
-      break
-  }
-
-  return { success: true, reference, status }
-}
-
-/**
- * Gets the payment status for a reservation
- * TODO: Query database for reservation status
- */
-export async function getPaymentStatus(reference: string) {
-  console.log('[v0] Getting payment status for reference:', reference)
-
-  // TODO: Database query example:
-  // const reservation = await db.reservation.findUnique({
-  //   where: { reference },
-  //   select: { paymentStatus: true, wompiTransactionId: true }
-  // })
-
-  // For now, return placeholder
-  return {
-    reference,
-    status: 'pending',
-    transactionId: null,
-  }
-}

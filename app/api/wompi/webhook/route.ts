@@ -1,93 +1,62 @@
 import { NextRequest, NextResponse } from 'next/server'
-import {
-  validateWebhookSignature,
-  parseWompiEvent,
-  handleTransactionUpdate,
-} from '@/lib/wompi'
+import { validateWebhookSignature, WompiWebhookEvent } from '@/lib/wompi'
 
 /**
  * POST /api/wompi/webhook
- * Receives payment status updates from Wompi
- * Wompi sends webhook events for transaction status changes
- * 
- * Configure in Wompi dashboard:
- * Webhook URL: https://yourdomain.com/api/wompi/webhook
- * Events: transaction.updated, transaction.completed, etc.
+ * Receives Wompi server-to-server transaction status events.
+ *
+ * Configure this URL in your Wompi dashboard under:
+ *   Developers → Webhooks → https://yourdomain.co/api/wompi/webhook
  */
-export async function POST(request: NextRequest) {
+export async function POST(req: NextRequest) {
   try {
-    console.log('[v0] Webhook received from Wompi')
+    const body: WompiWebhookEvent = await req.json()
+    const { event, data, timestamp, signature } = body
+    const transaction = data?.transaction
 
-    // Get signature header
-    const signature = request.headers.get('x-wompi-signature')
-
-    // Read body
-    const rawBody = await request.text()
-    const body = JSON.parse(rawBody)
-
-    console.log('[v0] Webhook event:', body.event)
-
-    // Validate signature
-    const isValid = await validateWebhookSignature(rawBody, signature)
-    if (!isValid) {
-      console.warn('[v0] Invalid webhook signature')
-      // Still process in sandbox mode
-      if (process.env.WOMPI_ENV !== 'sandbox') {
-        return NextResponse.json(
-          { error: 'Invalid signature' },
-          { status: 401 }
-        )
-      }
+    if (!transaction?.id || !transaction?.status || !signature?.checksum) {
+      return NextResponse.json({ error: 'Invalid event payload.' }, { status: 400 })
     }
 
-    // Parse event
-    const event = parseWompiEvent(body)
-    if (!event) {
-      console.warn('[v0] Failed to parse Wompi event')
-      return NextResponse.json(
-        { error: 'Invalid event format' },
-        { status: 400 }
-      )
-    }
-
-    // Handle different event types
-    switch (event.event) {
-      case 'transaction.updated':
-      case 'transaction.completed':
-        console.log('[v0] Processing transaction update')
-        const result = await handleTransactionUpdate(event)
-        return NextResponse.json(result, { status: 200 })
-
-      default:
-        console.log('[v0] Unhandled event type:', event.event)
-        // Still return 200 to acknowledge receipt
-        return NextResponse.json(
-          { received: true, event: event.event },
-          { status: 200 }
-        )
-    }
-  } catch (error) {
-    console.error('[v0] Webhook error:', error)
-
-    // Always return 200 to prevent Wompi retries on processing errors
-    // In production, implement proper error logging and alerting
-    return NextResponse.json(
-      { received: true, error: 'Processing error' },
-      { status: 200 }
+    const isValid = validateWebhookSignature(
+      signature.checksum,
+      transaction.id,
+      transaction.status,
+      timestamp
     )
+
+    if (!isValid && process.env.WOMPI_ENV === 'production') {
+      console.warn('[wompi/webhook] Invalid signature — rejecting event.')
+      return NextResponse.json({ error: 'Invalid signature.' }, { status: 401 })
+    }
+
+    const { reference, status, id: transactionId } = transaction
+    console.log('[wompi/webhook]', { event, reference, status, transactionId })
+
+    // TODO: Update reservation status in your database here.
+    // Example (Neon / Supabase / Prisma):
+    //
+    // await db.reservation.update({
+    //   where: { reference },
+    //   data: { paymentStatus: status, wompiTransactionId: transactionId },
+    // })
+    //
+    // if (status === 'APPROVED') {
+    //   await sendConfirmationEmail({ reference, ...transaction })
+    // }
+
+    return NextResponse.json({ received: true })
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Error processing webhook.'
+    console.error('[wompi/webhook]', msg)
+    return NextResponse.json({ error: msg }, { status: 500 })
   }
 }
 
-/**
- * GET /api/wompi/webhook
- * For testing/verification from Wompi dashboard
- */
-export async function GET(request: NextRequest) {
-  return NextResponse.json(
-    {
-      message: 'Wompi webhook endpoint is active',
-      environment: process.env.WOMPI_ENV || 'development',
-    },
-    { status: 200 }
-  )
+/** GET — health check for Wompi dashboard verification */
+export async function GET() {
+  return NextResponse.json({
+    active: true,
+    environment: process.env.WOMPI_ENV ?? 'sandbox',
+  })
 }

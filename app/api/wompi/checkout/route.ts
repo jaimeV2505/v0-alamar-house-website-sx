@@ -1,115 +1,60 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createWompiCheckout } from '@/lib/wompi'
+import { generateReference, toCents, buildCheckoutUrl } from '@/lib/wompi'
+import { calculatePrice } from '@/lib/pricing'
 
 /**
  * POST /api/wompi/checkout
- * Creates a Wompi checkout session for a reservation
- * 
- * Request body:
- * {
- *   fullName: string
- *   email: string
- *   phone: string
- *   checkIn: string (ISO date)
- *   checkOut: string (ISO date)
- *   nights: number
- *   totalAmount: number (COP)
- *   pricePerNight: number
- *   guests: number
- *   message?: string
- * }
+ * Validates the reservation, calculates the price server-side,
+ * generates a Wompi hosted-checkout redirect URL, and returns it.
  */
-export async function POST(request: NextRequest) {
+export async function POST(req: NextRequest) {
   try {
-    console.log('[v0] Checkout request received')
+    const body = await req.json()
+    const { fullName, email, phone, checkIn, checkOut, guests, message } = body
 
-    // Parse request body
-    const body = await request.json()
-
-    // Validate required fields
-    const required = [
-      'fullName',
-      'email',
-      'phone',
-      'checkIn',
-      'checkOut',
-      'nights',
-      'totalAmount',
-      'pricePerNight',
-      'guests',
-    ]
-
-    for (const field of required) {
-      if (!body[field]) {
-        console.log(`[v0] Missing required field: ${field}`)
-        return NextResponse.json(
-          { error: `Missing required field: ${field}` },
-          { status: 400 }
-        )
-      }
-    }
-
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(body.email)) {
+    if (!fullName || !email || !phone || !checkIn || !checkOut || !guests) {
       return NextResponse.json(
-        { error: 'Invalid email format' },
+        { error: 'Todos los campos obligatorios deben completarse.' },
         { status: 400 }
       )
     }
 
-    // Validate dates
-    const checkIn = new Date(body.checkIn)
-    const checkOut = new Date(body.checkOut)
-    if (checkIn >= checkOut) {
+    if (checkOut <= checkIn) {
       return NextResponse.json(
-        { error: 'Check-out date must be after check-in date' },
+        { error: 'La fecha de salida debe ser posterior a la llegada.' },
         { status: 400 }
       )
     }
 
-    // Validate amount
-    if (body.totalAmount <= 0) {
+    // Always calculate price server-side — never trust a client-supplied amount
+    const pricing = calculatePrice(new Date(checkIn), new Date(checkOut))
+
+    if (pricing.nights < 1) {
       return NextResponse.json(
-        { error: 'Invalid amount' },
+        { error: 'La reserva debe ser de al menos 1 noche.' },
         { status: 400 }
       )
     }
 
-    console.log('[v0] Validation passed, creating checkout...')
+    const reference = generateReference()
+    const amountInCents = toCents(pricing.totalEstimated)
 
-    // Create Wompi checkout
-    const checkoutData = await createWompiCheckout({
-      fullName: body.fullName,
-      email: body.email,
-      phone: body.phone,
-      checkIn: body.checkIn,
-      checkOut: body.checkOut,
-      nights: body.nights,
-      totalAmount: body.totalAmount,
-      pricePerNight: body.pricePerNight,
-      guests: body.guests,
-      message: body.message,
+    const redirectUrl = buildCheckoutUrl({
+      fullName,
+      email,
+      phone,
+      checkIn,
+      checkOut,
+      guests,
+      message,
+      amountInCents,
+      reference,
     })
 
-    console.log('[v0] Checkout created:', checkoutData.reference)
-
-    return NextResponse.json(
-      {
-        success: true,
-        reference: checkoutData.reference,
-        checkoutUrl: checkoutData.checkoutUrl,
-        amount: checkoutData.amount,
-      },
-      { status: 200 }
-    )
-  } catch (error) {
-    console.error('[v0] Checkout error:', error)
-
-    const message = error instanceof Error ? error.message : 'Unknown error'
-    return NextResponse.json(
-      { error: message },
-      { status: 500 }
-    )
+    return NextResponse.json({ redirectUrl, reference })
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Error interno del servidor.'
+    console.error('[wompi/checkout]', msg)
+    return NextResponse.json({ error: msg }, { status: 500 })
   }
 }

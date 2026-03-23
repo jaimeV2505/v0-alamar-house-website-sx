@@ -1,15 +1,23 @@
 'use client'
 
+import { Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import Navbar from '@/components/shared/navbar'
 import Footer from '@/components/shared/footer'
-import { CheckCircle, AlertCircle, Clock, XCircle } from 'lucide-react'
+import { CheckCircle, AlertCircle, Clock, XCircle, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 type PaymentStatus = 'approved' | 'pending' | 'declined' | 'error'
 
-const statusConfig: Record<PaymentStatus, any> = {
+const statusConfig: Record<PaymentStatus, {
+  icon: typeof CheckCircle
+  title: string
+  description: string
+  bgColor: string
+  borderColor: string
+  iconColor: string
+}> = {
   approved: {
     icon: CheckCircle,
     title: '¡Reserva confirmada!',
@@ -48,7 +56,7 @@ const statusConfig: Record<PaymentStatus, any> = {
   },
 }
 
-export default function PagoResultado() {
+function PaymentResultContent() {
   const searchParams = useSearchParams()
   const statusParam = (searchParams.get('status') || 'error').toLowerCase() as PaymentStatus
   const reference = searchParams.get('reference')
@@ -204,5 +212,37 @@ export default function PagoResultado() {
 
       <Footer />
     </div>
+  )
+}
+
+function LoadingFallback() {
+  return (
+    <div className="min-h-screen bg-background flex flex-col">
+      <Navbar />
+      <main className="flex-1 pt-28 pb-20 px-6 md:px-12 lg:px-20">
+        <div className="max-w-2xl mx-auto">
+          <div className="bg-secondary border-2 border-border rounded-lg p-8 md:p-12 text-center">
+            <div className="flex justify-center mb-6">
+              <Loader2 className="w-16 h-16 text-primary animate-spin" />
+            </div>
+            <h1 className="font-serif text-3xl md:text-4xl font-bold text-foreground mb-4">
+              Cargando resultado...
+            </h1>
+            <p className="text-lg text-text-secondary">
+              Por favor espera mientras verificamos el estado de tu pago.
+            </p>
+          </div>
+        </div>
+      </main>
+      <Footer />
+    </div>
+  )
+}
+
+export default function PagoResultado() {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <PaymentResultContent />
+    </Suspense>
   )
 }
