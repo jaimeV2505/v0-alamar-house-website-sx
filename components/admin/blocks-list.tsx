@@ -10,8 +10,8 @@ interface BlocksListProps {
 }
 
 export function BlocksList({ blocks, onDelete, isLoading }: BlocksListProps) {
-  // Filter out invalid blocks
-  const validBlocks = (blocks || []).filter(b => b && b.start_date && b.end_date)
+  // Filter out blocks with missing dates
+  const validBlocks = (blocks || []).filter(b => b?.start_date && b?.end_date)
   
   if (validBlocks.length === 0) {
     return (
@@ -25,10 +25,7 @@ export function BlocksList({ blocks, onDelete, isLoading }: BlocksListProps) {
     <div className="space-y-2">
       {validBlocks.map((block) => {
         const info = getBlockReasonInfo(block.block_type)
-        if (!info) {
-          console.error('[v0] No info for block_type:', block.block_type, 'block:', block)
-          return null
-        }
+        if (!info) return null
         const nights = calculateNights(block.start_date, block.end_date)
         const dateStr = formatDateRange(block.start_date, block.end_date)
 

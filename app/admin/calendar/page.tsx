@@ -22,11 +22,11 @@ export default function AdminCalendarPage() {
   async function fetchBlocks() {
     try {
       const res = await fetch('/api/admin/calendar')
-      if (!res.ok) throw new Error('Failed to fetch')
+      if (!res.ok) return
       const data = await res.json()
       setBlocks(data.blocks || [])
     } catch {
-      // Silent fail - empty blocks is fine
+      // Network error - keep empty blocks
     } finally {
       setLoading(false)
     }

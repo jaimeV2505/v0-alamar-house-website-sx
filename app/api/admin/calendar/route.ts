@@ -2,11 +2,12 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/auth'
 import { createBlockSchema, CalendarBlock } from '@/lib/calendar'
 
+// GET - Fetch all calendar blocks
 export async function GET() {
   try {
     const { data: blocks, error } = await supabase
       .from('calendar_blocks')
-      .select('id, start_date, end_date, block_type, notes, reason, booking_request_id, created_at')
+      .select('id, block_date, start_date, end_date, block_type, notes, reason, booking_request_id, created_at')
       .not('start_date', 'is', null)
       .not('end_date', 'is', null)
       .order('start_date', { ascending: true })
@@ -15,7 +16,6 @@ export async function GET() {
       return NextResponse.json({ error: 'Error al obtener bloqueos' }, { status: 500 })
     }
 
-    // Filter and normalize blocks
     const validBlocks: CalendarBlock[] = (blocks || [])
       .filter(b => b.start_date && b.end_date)
       .map(b => ({
@@ -29,16 +29,16 @@ export async function GET() {
   }
 }
 
+// POST - Create a new calendar block
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
     
-    // Validate with Zod
+    // Validate input
     const parsed = createBlockSchema.safeParse(body)
     if (!parsed.success) {
-      const firstError = parsed.error.errors[0]
       return NextResponse.json(
-        { error: firstError.message },
+        { error: parsed.error.errors[0]?.message || 'Datos inválidos' },
         { status: 400 }
       )
     }
@@ -52,14 +52,12 @@ export async function POST(request: NextRequest) {
       .not('start_date', 'is', null)
       .not('end_date', 'is', null)
 
-    // Check overlap manually for better reliability
     const hasOverlap = existingBlocks?.some(block => {
       if (!block.start_date || !block.end_date) return false
       const blockStart = new Date(block.start_date)
       const blockEnd = new Date(block.end_date)
       const newStart = new Date(start_date)
       const newEnd = new Date(end_date)
-      // Check if ranges overlap
       return newStart <= blockEnd && newEnd >= blockStart
     })
 
@@ -70,13 +68,14 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Insert with block_date (required NOT NULL field)
     const { data: block, error } = await supabase
       .from('calendar_blocks')
       .insert({
-        block_date: start_date, // Required NOT NULL column - use start_date
-        start_date,
-        end_date,
-        block_type,
+        block_date: start_date,
+        start_date: start_date,
+        end_date: end_date,
+        block_type: block_type,
         notes: notes || null,
         booking_request_id: booking_request_id || null,
       })
@@ -92,6 +91,6 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ block }, { status: 201 })
   } catch {
-    return NextResponse.json({ error: 'Error interno' }, { status: 500 })
+    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
   }
 }
