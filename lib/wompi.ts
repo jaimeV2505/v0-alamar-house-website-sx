@@ -1,7 +1,7 @@
 import crypto from 'crypto'
 
 /**
- * Wompi sandbox integration helpers for ALAMAR HOUSE.
+ * Wompi sandbox integration helpers for ALAMAR BEACH HOUSE.
  *
  * Required environment variables (set in Vercel project settings or .env.local):
  *   NEXT_PUBLIC_WOMPI_PUBLIC_KEY  — Public key (safe to expose client-side)

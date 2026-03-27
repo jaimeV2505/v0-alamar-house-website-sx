@@ -21,7 +21,7 @@ export default function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-9 h-9 flex items-center justify-center rounded-full border border-white/20 hover:border-[#D4A574] hover:text-[#D4A574] transition-colors"
-                aria-label="Instagram de ALAMAR HOUSE"
+                aria-label="Instagram de ALAMAR BEACH HOUSE"
               >
                 <Instagram size={16} />
               </a>
@@ -30,7 +30,7 @@ export default function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-9 h-9 flex items-center justify-center rounded-full border border-white/20 hover:border-[#D4A574] hover:text-[#D4A574] transition-colors"
-                aria-label="TikTok de ALAMAR HOUSE"
+                aria-label="TikTok de ALAMAR BEACH HOUSE"
               >
                 <Music size={16} />
               </a>
@@ -42,11 +42,11 @@ export default function Footer() {
             <p className="font-sans text-xs tracking-[0.2em] uppercase text-[#D4A574] font-semibold">Navegación</p>
             <nav className="flex flex-col gap-2">
               {[
-                { href: '#experiencia', label: 'Experiencia' },
-                { href: '#galeria', label: 'Galería' },
-                { href: '#amenidades', label: 'Amenidades' },
-                { href: '#precios', label: 'Precios' },
-                { href: '#faqs', label: 'Preguntas frecuentes' },
+                { href: '/#experiencia', label: 'Experiencia' },
+                { href: '/#galeria', label: 'Galería' },
+                { href: '/#amenidades', label: 'Amenidades' },
+                { href: '/#precios', label: 'Precios' },
+                { href: '/#faqs', label: 'Preguntas frecuentes' },
                 { href: '/reserva', label: 'Reservar ahora' },
               ].map((link) => (
                 <Link
@@ -86,7 +86,7 @@ export default function Footer() {
 
         <div className="mt-12 pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="font-sans text-xs text-white/40">
-            © {new Date().getFullYear()} ALAMAR HOUSE. Todos los derechos reservados.
+            © {new Date().getFullYear()} ALAMAR BEACH HOUSE. Todos los derechos reservados.
           </p>
           <p className="font-sans text-xs text-white/40">
             Playa Blanca, San Antero, Córdoba, Colombia

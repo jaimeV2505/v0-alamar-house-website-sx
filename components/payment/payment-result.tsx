@@ -31,7 +31,7 @@ const STATES: Record<
     border: 'border-[#7BA696]/25',
     iconColor: 'text-[#7BA696]',
     heading: '¡Reserva confirmada!',
-    body: 'Tu pago fue aprobado. En los próximos minutos recibirás un correo con los detalles de tu estadía en ALAMAR HOUSE. ¡Te esperamos!',
+    body: 'Tu pago fue aprobado. En los próximos minutos recibirás un correo con los detalles de tu estadía en ALAMAR BEACH HOUSE. ¡Te esperamos!',
     ctaLabel: 'Volver al inicio',
     ctaHref: '/',
   },

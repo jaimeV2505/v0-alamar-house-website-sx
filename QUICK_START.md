@@ -1,4 +1,4 @@
-# ALAMAR HOUSE — Quick Start Guide
+# ALAMAR BEACH HOUSE — Quick Start Guide
 
 ## 30-Second Setup
 

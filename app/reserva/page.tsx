@@ -7,10 +7,19 @@ import Navbar from '@/components/shared/navbar'
 import Footer from '@/components/shared/footer'
 import ReservationForm from '@/components/booking/reservation-form'
 import SummaryPanel from '@/components/booking/summary-panel'
-import { PricingResult } from '@/lib/pricing'
+
+interface ReservationData {
+  checkIn: string
+  checkOut: string
+  guests: string
+}
 
 export default function ReservaPage() {
-  const [pricing, setPricing] = useState<PricingResult | null>(null)
+  const [reservationData, setReservationData] = useState<ReservationData>({
+    checkIn: '',
+    checkOut: '',
+    guests: '',
+  })
 
   return (
     <>
@@ -33,7 +42,7 @@ export default function ReservaPage() {
               </span>
             </div>
             <h1 className="font-serif text-4xl md:text-5xl text-white font-bold text-balance">
-              Solicita tu estadía<br />en ALAMAR HOUSE
+              Solicita tu estadía<br />en ALAMAR BEACH HOUSE
             </h1>
             <p className="mt-4 font-sans text-base text-white/70 max-w-xl leading-relaxed">
               Completa el formulario para solicitar tu reserva. Nos pondremos en contacto vía correo y WhatsApp para confirmar disponibilidad.
@@ -54,11 +63,11 @@ export default function ReservaPage() {
                 </p>
               </div>
               <div className="bg-white border border-[#E8E3D8] rounded-lg p-8">
-                <ReservationForm onPricingChange={setPricing} />
+                <ReservationForm onReservationChange={setReservationData} />
               </div>
             </div>
             <div>
-              <SummaryPanel pricing={pricing} />
+              <SummaryPanel reservationData={reservationData} />
             </div>
           </div>
         </div>

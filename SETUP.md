@@ -1,8 +1,8 @@
-# ALAMAR HOUSE — Setup & Deployment Guide
+# ALAMAR BEACH HOUSE — Setup & Deployment Guide
 
 ## Overview
 
-ALAMAR HOUSE is a premium luxury villa booking website for a beachfront property in Playa Blanca, San Antero, Colombia. The site features a sophisticated design, complete booking system, and integrated Wompi payment processing.
+ALAMAR BEACH HOUSE is a premium luxury villa booking website for a beachfront property in Playa Blanca, San Antero, Colombia. The site features a sophisticated design, complete booking system, and integrated Wompi payment processing.
 
 **Live URL:** (add your deployed URL here)
 
@@ -367,7 +367,7 @@ For issues or questions:
 
 ## License
 
-© 2026 ALAMAR HOUSE. All rights reserved.
+© 2026 ALAMAR BEACH HOUSE. All rights reserved.
 
 ---
 

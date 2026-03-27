@@ -15,7 +15,7 @@ const playfair = Playfair_Display({
 })
 
 export const metadata: Metadata = {
-  title: 'ALAMAR HOUSE — Villa de Lujo en Playa Blanca, San Antero',
+  title: 'ALAMAR BEACH HOUSE — Villa de Lujo en Playa Blanca, San Antero',
   description:
     'Vive una experiencia VIP en nuestra villa exclusiva a 30 metros del mar. Piscina privada, jacuzzi, 4 habitaciones, vistas al océano en San Antero, Córdoba, Colombia.',
   keywords: [
@@ -25,10 +25,10 @@ export const metadata: Metadata = {
     'alquiler vacacional Colombia',
     'villa con piscina',
     'jacuzzi playa Colombia',
-    'ALAMAR HOUSE',
+    'ALAMAR BEACH HOUSE',
   ],
   openGraph: {
-    title: 'ALAMAR HOUSE — Villa de Lujo en Playa Blanca',
+    title: 'ALAMAR BEACH HOUSE — Villa de Lujo en Playa Blanca',
     description:
       'Descubre un refugio donde el mar, la calma y el confort se unen. Reserva tu experiencia VIP hoy.',
     type: 'website',

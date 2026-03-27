@@ -6,7 +6,7 @@ import { X, ZoomIn } from 'lucide-react'
 const galleryImages = [
   {
     src: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/7-vogXatJj9UKprZOYTZvsHMcZ3sqxsR.jpeg',
-    alt: 'Vista exterior de ALAMAR HOUSE con piscina y palmeras',
+    alt: 'Vista exterior de ALAMAR BEACH HOUSE con piscina y palmeras',
     caption: 'Exterior y piscina',
     cols: 'col-span-2 md:col-span-1',
   },
@@ -68,7 +68,7 @@ export default function GallerySection() {
             </h2>
           </div>
           <p className="font-sans text-sm text-[#666666] max-w-xs leading-relaxed">
-            Diseño tropical, luz natural y detalles de lujo en cada rincón de ALAMAR HOUSE.
+            Diseño tropical, luz natural y detalles de lujo en cada rincón de ALAMAR BEACH HOUSE.
           </p>
         </div>
 

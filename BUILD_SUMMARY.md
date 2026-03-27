@@ -1,8 +1,8 @@
-# ALAMAR HOUSE — Build Summary
+# ALAMAR BEACH HOUSE — Build Summary
 
 ## Project Complete ✓
 
-**Project Name:** ALAMAR HOUSE - Premium Villa Booking Platform  
+**Project Name:** ALAMAR BEACH HOUSE - Premium Villa Booking Platform  
 **Status:** Ready for Development & Testing  
 **Build Date:** 2026-03-23
 

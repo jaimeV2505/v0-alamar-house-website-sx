@@ -1,5 +1,5 @@
 /**
- * Pricing logic for ALAMAR HOUSE reservations.
+ * Pricing logic for ALAMAR BEACH HOUSE reservations.
  * Rates are in Colombian Pesos (COP).
  */
 

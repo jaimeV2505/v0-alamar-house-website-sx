@@ -38,10 +38,10 @@ function validate(data: FormData): FormErrors {
 }
 
 interface Props {
-  onPricingChange?: (pricing: any) => void
+  onReservationChange?: (data: { checkIn: string; checkOut: string; guests: string }) => void
 }
 
-export default function ReservationForm({ onPricingChange }: Props) {
+export default function ReservationForm({ onReservationChange }: Props) {
   const [formData, setFormData] = useState<FormData>({
     fullName: '',
     email: '',
@@ -97,6 +97,14 @@ export default function ReservationForm({ onPricingChange }: Props) {
     if (errors[name as keyof FormErrors]) {
       setErrors((prev) => ({ ...prev, [name]: undefined }))
     }
+    // Notificar cambios en datos de reserva
+    if (name === 'checkIn' || name === 'checkOut' || name === 'guests') {
+      onReservationChange?.({
+        checkIn: name === 'checkIn' ? value : updated.checkIn,
+        checkOut: name === 'checkOut' ? value : updated.checkOut,
+        guests: name === 'guests' ? value : updated.guests,
+      })
+    }
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -145,7 +153,7 @@ export default function ReservationForm({ onPricingChange }: Props) {
       // Generate WhatsApp message link
       const checkInDate = new Date(formData.checkIn).toLocaleDateString('es-CO')
       const checkOutDate = new Date(formData.checkOut).toLocaleDateString('es-CO')
-      const whatsappMessage = `Hola, estoy interesado en reservar ALAMAR HOUSE del ${checkInDate} al ${checkOutDate} para ${formData.guests} ${formData.guests === '1' ? 'persona' : 'personas'}. Mi nombre es ${formData.fullName} y mi correo es ${formData.email}. ${formData.message ? `Notas: ${formData.message}` : ''}`
+      const whatsappMessage = `Hola, estoy interesado en reservar ALAMAR BEACH HOUSE del ${checkInDate} al ${checkOutDate} para ${formData.guests} ${formData.guests === '1' ? 'persona' : 'personas'}. Mi nombre es ${formData.fullName} y mi correo es ${formData.email}. ${formData.message ? `Notas: ${formData.message}` : ''}`
       const whatsappUrl = `https://wa.me/573000000000?text=${encodeURIComponent(whatsappMessage)}`
 
       // Reset form

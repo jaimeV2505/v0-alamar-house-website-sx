@@ -7,7 +7,7 @@ export default function FinalCtaSection() {
       <div className="absolute inset-0 z-0">
         <img
           src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/1-Xzrjd6WGSHkuDWGQSRL1aPRgywvrOL.jpeg"
-          alt="ALAMAR HOUSE desde el jardín con vista a la piscina"
+          alt="ALAMAR BEACH HOUSE desde el jardín con vista a la piscina"
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-[#1B4D5C]/80" />

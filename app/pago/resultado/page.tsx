@@ -22,7 +22,7 @@ const statusConfig: Record<PaymentStatus, {
     icon: CheckCircle,
     title: '¡Reserva confirmada!',
     description:
-      'Tu pago ha sido aprobado. Recibirás un email de confirmación en breve con todos los detalles de tu reserva en ALAMAR HOUSE.',
+      'Tu pago ha sido aprobado. Recibirás un email de confirmación en breve con todos los detalles de tu reserva en ALAMAR BEACH HOUSE.',
     bgColor: 'bg-green-50',
     borderColor: 'border-green-200',
     iconColor: 'text-green-600',
