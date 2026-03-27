@@ -40,12 +40,12 @@ export default function SummaryPanel({ reservationData }: Props) {
         <div className="relative h-44">
           <img
             src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/7-vogXatJj9UKprZOYTZvsHMcZ3sqxsR.jpeg"
-            alt="ALAMAR HOUSE exterior con piscina"
+            alt="ALAMAR BEACH HOUSE exterior con piscina"
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#1B4D5C]/70 to-transparent flex items-end p-5">
             <div>
-              <p className="font-serif text-lg text-white font-bold">ALAMAR HOUSE</p>
+              <p className="font-serif text-lg text-white font-bold">ALAMAR BEACH HOUSE</p>
               <p className="font-sans text-xs text-white/70">Playa Blanca, San Antero · Colombia</p>
             </div>
           </div>

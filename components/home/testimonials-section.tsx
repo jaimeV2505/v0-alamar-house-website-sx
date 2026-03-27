@@ -5,7 +5,7 @@ const testimonials = [
     name: 'María Fernanda Ospina',
     location: 'Medellín, Colombia',
     quote:
-      'ALAMAR HOUSE superó todas nuestras expectativas. La vista al mar desde el segundo piso, la piscina, el jacuzzi... todo fue perfecto. Ya estamos planeando el regreso con más familia.',
+      'ALAMAR BEACH HOUSE superó todas nuestras expectativas. La vista al mar desde el segundo piso, la piscina, el jacuzzi... todo fue perfecto. Ya estamos planeando el regreso con más familia.',
     rating: 5,
     occasion: 'Reunión familiar',
   },

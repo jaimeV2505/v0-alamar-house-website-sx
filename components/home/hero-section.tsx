@@ -8,7 +8,7 @@ export default function HeroSection() {
       <div className="absolute inset-0 z-0">
         <img
           src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/7-vogXatJj9UKprZOYTZvsHMcZ3sqxsR.jpeg"
-          alt="ALAMAR HOUSE — Vista exterior con piscina y palmeras"
+          alt="ALAMAR BEACH HOUSE — Vista exterior con piscina y palmeras"
           className="w-full h-full object-cover"
         />
         {/* Gradient overlay */}

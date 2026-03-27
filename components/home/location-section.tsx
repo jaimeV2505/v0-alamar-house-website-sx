@@ -17,7 +17,7 @@ export default function LocationSection() {
               A 30 metros del Caribe colombiano
             </h2>
             <p className="font-sans text-base text-[#666666] leading-relaxed mb-8">
-              ALAMAR HOUSE está ubicada en Playa Blanca, uno de los destinos costeros más exclusivos de la Costa Caribe colombiana. A pasos del mar, rodeada de naturaleza tropical y con acceso directo a la playa.
+              ALAMAR BEACH HOUSE está ubicada en Playa Blanca, uno de los destinos costeros más exclusivos de la Costa Caribe colombiana. A pasos del mar, rodeada de naturaleza tropical y con acceso directo a la playa.
             </p>
 
             <div className="flex flex-col gap-4 mb-8">
@@ -70,7 +70,7 @@ export default function LocationSection() {
           <div className="relative rounded-lg overflow-hidden aspect-[4/3] bg-[#E8E3D8]">
             <img
               src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/3-U1ooPrRFOCTalxpsiFlomEyMhXXOg7.jpeg"
-              alt="Vista exterior de ALAMAR HOUSE en Playa Blanca, San Antero"
+              alt="Vista exterior de ALAMAR BEACH HOUSE en Playa Blanca, San Antero"
               className="w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#1B4D5C]/60 to-transparent flex items-end p-8">
@@ -79,7 +79,7 @@ export default function LocationSection() {
                   <MapPin size={14} className="text-[#D4A574]" />
                   <span className="font-sans text-xs text-white/80 tracking-wide">Playa Blanca, San Antero</span>
                 </div>
-                <p className="font-serif text-xl text-white font-bold">ALAMAR HOUSE</p>
+                <p className="font-serif text-xl text-white font-bold">ALAMAR BEACH HOUSE</p>
                 <p className="font-sans text-sm text-white/70">Costa Caribe Colombiana</p>
               </div>
             </div>

@@ -42,7 +42,7 @@ export default function ReservaPage() {
               </span>
             </div>
             <h1 className="font-serif text-4xl md:text-5xl text-white font-bold text-balance">
-              Solicita tu estadía<br />en ALAMAR HOUSE
+              Solicita tu estadía<br />en ALAMAR BEACH HOUSE
             </h1>
             <p className="mt-4 font-sans text-base text-white/70 max-w-xl leading-relaxed">
               Completa el formulario para solicitar tu reserva. Nos pondremos en contacto vía correo y WhatsApp para confirmar disponibilidad.
@@ -63,8 +63,8 @@ export default function ReservaPage() {
                 </p>
               </div>
               <div className="bg-white border border-[#E8E3D8] rounded-lg p-8">
-              <ReservationForm onReservationChange={setReservationData} />
-            </div>
+                <ReservationForm onReservationChange={setReservationData} />
+              </div>
             </div>
             <div>
               <SummaryPanel reservationData={reservationData} />

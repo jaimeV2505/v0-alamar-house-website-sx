@@ -153,7 +153,7 @@ export default function ReservationForm({ onReservationChange }: Props) {
       // Generate WhatsApp message link
       const checkInDate = new Date(formData.checkIn).toLocaleDateString('es-CO')
       const checkOutDate = new Date(formData.checkOut).toLocaleDateString('es-CO')
-      const whatsappMessage = `Hola, estoy interesado en reservar ALAMAR HOUSE del ${checkInDate} al ${checkOutDate} para ${formData.guests} ${formData.guests === '1' ? 'persona' : 'personas'}. Mi nombre es ${formData.fullName} y mi correo es ${formData.email}. ${formData.message ? `Notas: ${formData.message}` : ''}`
+      const whatsappMessage = `Hola, estoy interesado en reservar ALAMAR BEACH HOUSE del ${checkInDate} al ${checkOutDate} para ${formData.guests} ${formData.guests === '1' ? 'persona' : 'personas'}. Mi nombre es ${formData.fullName} y mi correo es ${formData.email}. ${formData.message ? `Notas: ${formData.message}` : ''}`
       const whatsappUrl = `https://wa.me/573000000000?text=${encodeURIComponent(whatsappMessage)}`
 
       // Reset form

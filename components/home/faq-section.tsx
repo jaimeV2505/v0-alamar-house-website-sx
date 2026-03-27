@@ -9,16 +9,16 @@ import {
 
 const faqs = [
   {
-    q: '¿Cuántas personas puede alojar ALAMAR HOUSE?',
+    q: '¿Cuántas personas puede alojar ALAMAR BEACH HOUSE?',
     a: 'La casa tiene capacidad para hasta 20 personas. Cuenta con 4 habitaciones, sofás-camas adicionales y cunas disponibles para familias con bebés.',
   },
   {
     q: '¿Se permiten mascotas en la propiedad?',
-    a: 'Sí, las mascotas son bienvenidas en ALAMAR HOUSE. Solo te pedimos que las mantengas supervisadas en las áreas de piscina y jardín por seguridad.',
+    a: 'Sí, las mascotas son bienvenidas en ALAMAR BEACH HOUSE. Solo te pedimos que las mantengas supervisadas en las áreas de piscina y jardín por seguridad.',
   },
   {
     q: '¿Puedo organizar eventos o fiestas?',
-    a: 'Sí, ALAMAR HOUSE está habilitada para eventos y celebraciones privadas. La terraza, el área de piscina y los espacios internos son perfectos para reuniones. Solo pedimos respetar el descanso de vecinos después de las 11 PM.',
+    a: 'Sí, ALAMAR BEACH HOUSE está habilitada para eventos y celebraciones privadas. La terraza, el área de piscina y los espacios internos son perfectos para reuniones. Solo pedimos respetar el descanso de vecinos después de las 11 PM.',
   },
   {
     q: '¿Qué está incluido en la tarifa?',
@@ -42,7 +42,7 @@ const faqs = [
   },
   {
     q: '¿Está disponible todo el año?',
-    a: 'ALAMAR HOUSE está disponible durante todo el año. Las tarifas varían según la temporada (regular o alta). Te recomendamos reservar con anticipación para temporadas de Semana Santa, vacaciones de mitad de año y diciembre.',
+    a: 'ALAMAR BEACH HOUSE está disponible durante todo el año. Las tarifas varían según la temporada (regular o alta). Te recomendamos reservar con anticipación para temporadas de Semana Santa, vacaciones de mitad de año y diciembre.',
   },
 ]
 

@@ -93,7 +93,7 @@ export default function AmenitiesSection() {
             Todo lo que necesitas,<br />nada que te sobre
           </h2>
           <p className="mt-5 font-sans text-base text-[#666666] max-w-xl mx-auto leading-relaxed">
-            ALAMAR HOUSE viene equipado con todo lo esencial para vivir unas vacaciones perfectas, sin preocupaciones.
+            ALAMAR BEACH HOUSE viene equipado con todo lo esencial para vivir unas vacaciones perfectas, sin preocupaciones.
           </p>
         </div>
 
