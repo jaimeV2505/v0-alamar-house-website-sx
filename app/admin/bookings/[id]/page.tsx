@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ChevronLeft, CheckCircle, Clock, XCircle, MessageSquare } from 'lucide-react'
+import { ChevronLeft, CheckCircle, Clock, XCircle, MessageSquare, Calendar } from 'lucide-react'
 
 interface BookingRequest {
   id: string
@@ -29,6 +29,7 @@ export default function BookingDetailPage() {
   const [updating, setUpdating] = useState(false)
   const [adminNotes, setAdminNotes] = useState('')
   const [status, setStatus] = useState<'pending' | 'confirmed' | 'cancelled'>('pending')
+  const [blockingDates, setBlockingDates] = useState(false)
 
   useEffect(() => {
     fetchBooking()
@@ -36,14 +37,19 @@ export default function BookingDetailPage() {
 
   async function fetchBooking() {
     try {
+      console.log('[v0] BookingDetail: Fetching booking', bookingId)
       const res = await fetch(`/api/admin/bookings/${bookingId}`)
-      if (!res.ok) throw new Error('Failed to fetch')
+      if (!res.ok) {
+        console.log('[v0] BookingDetail: Response not OK:', res.status)
+        throw new Error('Failed to fetch')
+      }
       const data = await res.json()
+      console.log('[v0] BookingDetail: Retrieved booking:', data.booking?.id)
       setBooking(data.booking)
       setAdminNotes(data.booking?.admin_notes || '')
       setStatus(data.booking?.status || 'pending')
     } catch (err) {
-      console.error('Error fetching booking:', err)
+      console.error('[v0] BookingDetail: Error fetching booking:', err)
     } finally {
       setLoading(false)
     }
@@ -87,6 +93,33 @@ export default function BookingDetailPage() {
       alert('Error al guardar notas')
     } finally {
       setUpdating(false)
+    }
+  }
+
+  async function handleBlockDates() {
+    if (!booking || !confirm('¿Bloquear estas fechas en el calendario?')) return
+
+    setBlockingDates(true)
+    try {
+      const res = await fetch('/api/admin/calendar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          start_date: booking.check_in_date,
+          end_date: booking.check_out_date,
+          block_type: 'confirmed',
+          notes: `Reserva de ${booking.guest_name}`,
+          booking_request_id: bookingId,
+        }),
+      })
+
+      if (!res.ok) throw new Error('Failed to block dates')
+      alert('Fechas bloqueadas correctamente')
+    } catch (err) {
+      console.error('Error blocking dates:', err)
+      alert('Error al bloquear fechas')
+    } finally {
+      setBlockingDates(false)
     }
   }
 
@@ -205,6 +238,18 @@ export default function BookingDetailPage() {
               <p className="font-serif text-lg font-bold text-[#2C2C2C]">{nights}</p>
             </div>
           </div>
+
+          {/* Block dates button */}
+          {status === 'confirmed' && (
+            <button
+              onClick={handleBlockDates}
+              disabled={blockingDates}
+              className="mt-6 flex items-center gap-2 px-4 py-2 bg-[#1B4D5C]/10 text-[#1B4D5C] rounded-lg hover:bg-[#1B4D5C]/20 transition-colors font-sans text-sm font-semibold disabled:opacity-50"
+            >
+              <Calendar size={16} />
+              {blockingDates ? 'Bloqueando...' : 'Bloquear estas fechas'}
+            </button>
+          )}
         </div>
 
         {/* Special requests */}

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { LogOut, Plus, Calendar, CheckCircle, Clock, XCircle } from 'lucide-react'
+import { LogOut, Copy, MessageCircle, Calendar, CheckCircle, Clock, XCircle, MoreVertical } from 'lucide-react'
 import Link from 'next/link'
 
 interface BookingRequest {
@@ -23,6 +23,7 @@ export default function AdminDashboard() {
   const [bookings, setBookings] = useState<BookingRequest[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<'all' | 'pending' | 'confirmed' | 'cancelled'>('all')
+  const [copied, setCopied] = useState<string | null>(null)
 
   useEffect(() => {
     fetchBookings()
@@ -30,12 +31,17 @@ export default function AdminDashboard() {
 
   async function fetchBookings() {
     try {
+      console.log('[v0] Dashboard: Fetching bookings...')
       const res = await fetch('/api/admin/bookings')
-      if (!res.ok) throw new Error('Failed to fetch')
+      if (!res.ok) {
+        console.log('[v0] Dashboard: Response not OK:', res.status)
+        throw new Error('Failed to fetch')
+      }
       const data = await res.json()
+      console.log('[v0] Dashboard: Retrieved', data.bookings?.length || 0, 'bookings')
       setBookings(data.bookings || [])
     } catch (err) {
-      console.error('Error fetching bookings:', err)
+      console.error('[v0] Dashboard: Error fetching bookings:', err)
     } finally {
       setLoading(false)
     }
@@ -47,6 +53,19 @@ export default function AdminDashboard() {
   }
 
   const filteredBookings = bookings.filter((b) => filter === 'all' || b.status === filter)
+
+  const handleCopyPhoneLink = (phone: string, bookingId: string) => {
+    const whatsappLink = `https://wa.me/${phone.replace(/\D/g, '')}`
+    navigator.clipboard.writeText(whatsappLink)
+    setCopied(bookingId)
+    setTimeout(() => setCopied(null), 2000)
+  }
+
+  const statusCounts = {
+    pending: bookings.filter((b) => b.status === 'pending').length,
+    confirmed: bookings.filter((b) => b.status === 'confirmed').length,
+    cancelled: bookings.filter((b) => b.status === 'cancelled').length,
+  }
 
   const statusColors = {
     pending: { bg: 'bg-yellow-50', border: 'border-yellow-200', text: 'text-yellow-700', icon: Clock },
@@ -92,7 +111,7 @@ export default function AdminDashboard() {
 
         {/* Filters */}
         <div className="bg-white rounded-lg border border-[#E8E3D8] p-6 mb-8">
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-wrap gap-3 mb-4">
             {(['all', 'pending', 'confirmed', 'cancelled'] as const).map((f) => (
               <button
                 key={f}
@@ -103,13 +122,16 @@ export default function AdminDashboard() {
                     : 'bg-[#F5F0E8] text-[#2C2C2C] hover:bg-[#E8E3D8]'
                 }`}
               >
-                {f === 'all' ? 'Todas' : f === 'pending' ? 'Pendientes' : f === 'confirmed' ? 'Confirmadas' : 'Canceladas'}
+                {f === 'all'
+                  ? `Todas (${bookings.length})`
+                  : f === 'pending'
+                    ? `Pendientes (${statusCounts.pending})`
+                    : f === 'confirmed'
+                      ? `Confirmadas (${statusCounts.confirmed})`
+                      : `Canceladas (${statusCounts.cancelled})`}
               </button>
             ))}
           </div>
-          <p className="font-sans text-xs text-[#888880] mt-4">
-            Total: <strong>{filteredBookings.length}</strong> reserva{filteredBookings.length !== 1 ? 's' : ''}
-          </p>
         </div>
 
         {/* Bookings List */}
@@ -166,17 +188,26 @@ export default function AdminDashboard() {
                       </div>
                     </div>
 
-                    <div className="flex flex-wrap gap-4">
-                      <a href={`mailto:${booking.guest_email}`} className="font-sans text-sm text-[#1B4D5C] hover:underline">
-                        {booking.guest_email}
-                      </a>
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        onClick={() => handleCopyPhoneLink(booking.guest_phone, booking.id)}
+                        className="font-sans text-sm flex items-center gap-1 px-3 py-1 rounded-md bg-white/30 hover:bg-white/50 transition-colors"
+                        title="Copiar enlace de WhatsApp"
+                      >
+                        <Copy size={14} />
+                        {copied === booking.id ? 'Copiado' : 'Copiar link'}
+                      </button>
                       <a
                         href={`https://wa.me/${booking.guest_phone.replace(/\D/g, '')}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="font-sans text-sm text-[#1B4D5C] hover:underline"
+                        className={`font-sans text-sm flex items-center gap-1 px-3 py-1 rounded-md ${statusInfo.text} hover:opacity-75 transition-opacity`}
                       >
-                        {booking.guest_phone}
+                        <MessageCircle size={14} />
+                        WhatsApp
+                      </a>
+                      <a href={`mailto:${booking.guest_email}`} className={`font-sans text-sm ${statusInfo.text} hover:underline`}>
+                        {booking.guest_email}
                       </a>
                     </div>
                   </div>
