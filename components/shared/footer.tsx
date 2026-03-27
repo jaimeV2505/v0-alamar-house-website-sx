@@ -42,11 +42,11 @@ export default function Footer() {
             <p className="font-sans text-xs tracking-[0.2em] uppercase text-[#D4A574] font-semibold">Navegación</p>
             <nav className="flex flex-col gap-2">
               {[
-                { href: '#experiencia', label: 'Experiencia' },
-                { href: '#galeria', label: 'Galería' },
-                { href: '#amenidades', label: 'Amenidades' },
-                { href: '#precios', label: 'Precios' },
-                { href: '#faqs', label: 'Preguntas frecuentes' },
+                { href: '/#experiencia', label: 'Experiencia' },
+                { href: '/#galeria', label: 'Galería' },
+                { href: '/#amenidades', label: 'Amenidades' },
+                { href: '/#precios', label: 'Precios' },
+                { href: '/#faqs', label: 'Preguntas frecuentes' },
                 { href: '/reserva', label: 'Reservar ahora' },
               ].map((link) => (
                 <Link

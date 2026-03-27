@@ -38,10 +38,10 @@ function validate(data: FormData): FormErrors {
 }
 
 interface Props {
-  onPricingChange?: (pricing: any) => void
+  onReservationChange?: (data: { checkIn: string; checkOut: string; guests: string }) => void
 }
 
-export default function ReservationForm({ onPricingChange }: Props) {
+export default function ReservationForm({ onReservationChange }: Props) {
   const [formData, setFormData] = useState<FormData>({
     fullName: '',
     email: '',
@@ -96,6 +96,14 @@ export default function ReservationForm({ onPricingChange }: Props) {
     setFormData(updated)
     if (errors[name as keyof FormErrors]) {
       setErrors((prev) => ({ ...prev, [name]: undefined }))
+    }
+    // Notificar cambios en datos de reserva
+    if (name === 'checkIn' || name === 'checkOut' || name === 'guests') {
+      onReservationChange?.({
+        checkIn: name === 'checkIn' ? value : updated.checkIn,
+        checkOut: name === 'checkOut' ? value : updated.checkOut,
+        guests: name === 'guests' ? value : updated.guests,
+      })
     }
   }
 

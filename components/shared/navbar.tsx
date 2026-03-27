@@ -5,11 +5,11 @@ import Link from 'next/link'
 import { Menu, X } from 'lucide-react'
 
 const navLinks = [
-  { href: '#experiencia', label: 'Experiencia' },
-  { href: '#galeria', label: 'Galería' },
-  { href: '#amenidades', label: 'Amenidades' },
-  { href: '#precios', label: 'Precios' },
-  { href: '#faqs', label: 'FAQs' },
+  { href: '/#experiencia', label: 'Experiencia' },
+  { href: '/#galeria', label: 'Galería' },
+  { href: '/#amenidades', label: 'Amenidades' },
+  { href: '/#precios', label: 'Precios' },
+  { href: '/#faqs', label: 'FAQs' },
 ]
 
 export default function Navbar() {

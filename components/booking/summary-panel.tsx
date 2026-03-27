@@ -1,11 +1,38 @@
 import { Check, Calendar, TrendingUp, Lock } from 'lucide-react'
-import { PricingResult, formatCOP } from '@/lib/pricing'
 
-interface Props {
-  pricing: PricingResult | null
+interface ReservationData {
+  checkIn: string
+  checkOut: string
+  guests: string
 }
 
-export default function SummaryPanel({ pricing }: Props) {
+interface Props {
+  reservationData?: ReservationData
+}
+
+function calculateNights(checkIn: string, checkOut: string): number {
+  if (!checkIn || !checkOut) return 0
+  const start = new Date(checkIn)
+  const end = new Date(checkOut)
+  const diffTime = Math.abs(end.getTime() - start.getTime())
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+  return diffDays
+}
+
+function formatDateRange(checkIn: string, checkOut: string): string {
+  if (!checkIn || !checkOut) return ''
+  const start = new Date(checkIn)
+  const end = new Date(checkOut)
+  const options: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' }
+  const startStr = start.toLocaleDateString('es-CO', options).replace('.', '')
+  const endStr = end.toLocaleDateString('es-CO', options).replace('.', '')
+  return `${startStr} → ${endStr}`
+}
+
+export default function SummaryPanel({ reservationData }: Props) {
+  const nights = reservationData ? calculateNights(reservationData.checkIn, reservationData.checkOut) : 0
+  const dateRange = reservationData ? formatDateRange(reservationData.checkIn, reservationData.checkOut) : ''
+  const hasReservationData = reservationData?.checkIn && reservationData?.checkOut && reservationData?.guests
   return (
     <div className="sticky top-24 flex flex-col gap-6">
       {/* Property card */}
@@ -27,7 +54,7 @@ export default function SummaryPanel({ pricing }: Props) {
           {[
             { value: '4', label: 'Hab.' },
             { value: '5', label: 'Baños' },
-            { value: '20', label: 'Pers.' },
+            { value: '12', label: 'Pers.' },
           ].map((item, i) => (
             <div key={i} className="flex flex-col items-center gap-0.5">
               <span className="font-serif text-lg font-bold text-[#1B4D5C]">{item.value}</span>
@@ -43,16 +70,16 @@ export default function SummaryPanel({ pricing }: Props) {
           Resumen de tu reserva
         </p>
 
-        {pricing ? (
+        {hasReservationData ? (
           <>
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 flex items-center justify-center rounded-md bg-[#F5F0E8] shrink-0">
                 <Calendar size={15} className="text-[#1B4D5C]" />
               </div>
               <div className="flex-1">
-                <p className="font-sans text-xs text-[#888880]">Duración</p>
+                <p className="font-sans text-xs text-[#888880]">Fechas</p>
                 <p className="font-sans text-sm font-semibold text-[#2C2C2C]">
-                  {pricing.nights} {pricing.nights === 1 ? 'noche' : 'noches'}
+                  {nights} {nights === 1 ? 'noche' : 'noches'} · {dateRange}
                 </p>
               </div>
             </div>
@@ -62,22 +89,14 @@ export default function SummaryPanel({ pricing }: Props) {
                 <TrendingUp size={15} className="text-[#1B4D5C]" />
               </div>
               <div className="flex-1">
-                <p className="font-sans text-xs text-[#888880]">Tarifa</p>
-                <div className="flex items-center gap-2">
-                  <p className="font-sans text-sm font-semibold text-[#2C2C2C]">
-                    {pricing.seasonLabel}
-                  </p>
-                  {pricing.isHighSeason && (
-                    <span className="font-sans text-xs bg-[#D4A574]/15 text-[#D4A574] px-2 py-0.5 rounded-full border border-[#D4A574]/20">
-                      Alta
-                    </span>
-                  )}
-                </div>
+                <p className="font-sans text-xs text-[#888880]">Huéspedes</p>
+                <p className="font-sans text-sm font-semibold text-[#2C2C2C]">
+                  {reservationData?.guests} {reservationData?.guests === '1' ? 'persona' : 'personas'}
+                </p>
               </div>
             </div>
 
             <div className="w-full h-px bg-[#E8E3D8]" />
-            <p className="font-sans text-sm text-[#666666]">{pricing.breakdown}</p>
 
             <div className="flex flex-col gap-2 bg-[#F5F0E8] rounded-md p-3">
               {['Limpieza incluida', 'Desayuno y almuerzo', 'Personal de apoyo'].map((item, i) => (
@@ -88,15 +107,8 @@ export default function SummaryPanel({ pricing }: Props) {
               ))}
             </div>
 
-            <div className="w-full h-px bg-[#E8E3D8]" />
-            <div className="flex items-center justify-between">
-              <p className="font-sans text-sm font-semibold text-[#2C2C2C]">Total estimado</p>
-              <p className="font-serif text-xl font-bold text-[#1B4D5C]">
-                {formatCOP(pricing.totalEstimated)}
-              </p>
-            </div>
-            <p className="font-sans text-xs text-[#888880]">
-              Monto en COP. Se confirma al completar el formulario.
+            <p className="font-sans text-xs text-[#888880] text-center py-2">
+              El precio se confirmará después de enviar el formulario.
             </p>
           </>
         ) : (
@@ -105,7 +117,7 @@ export default function SummaryPanel({ pricing }: Props) {
               <Calendar size={18} className="text-[#888880]" />
             </div>
             <p className="font-sans text-sm text-[#888880] leading-relaxed">
-              Selecciona tus fechas para ver el precio estimado de tu estadía.
+              Selecciona tus fechas y número de huéspedes para ver el resumen.
             </p>
           </div>
         )}
