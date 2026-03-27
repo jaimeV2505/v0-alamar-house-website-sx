@@ -57,38 +57,37 @@ export default function ReservationForm({ onReservationChange }: Props) {
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
   const [unavailableDates, setUnavailableDates] = useState<Set<string>>(new Set())
-  const [loadingAvailability, setLoadingAvailability] = useState(false)
-  const [showCalendar, setShowCalendar] = useState(false)
+  const [loadingAvailability, setLoadingAvailability] = useState(true)
+  const [showCalendar, setShowCalendar] = useState(true)
 
   const today = new Date().toISOString().split('T')[0]
 
-  // Fetch unavailable dates when dates change
+  // Fetch unavailable dates on mount and when month changes
   useEffect(() => {
-    const checkAvailability = async () => {
-      if (!formData.checkIn || !formData.checkOut) {
-        setUnavailableDates(new Set())
-        return
-      }
-
+    const fetchUnavailableDates = async () => {
       setLoadingAvailability(true)
       try {
+        // Fetch for next 6 months
+        const startDate = new Date()
+        const endDate = new Date()
+        endDate.setMonth(endDate.getMonth() + 6)
+        
         const res = await fetch(
-          `/api/bookings/availability?start_date=${formData.checkIn}&end_date=${formData.checkOut}`
+          `/api/bookings/availability?start_date=${startDate.toISOString().split('T')[0]}&end_date=${endDate.toISOString().split('T')[0]}`
         )
         if (res.ok) {
           const data = await res.json()
           setUnavailableDates(new Set(data.unavailable_dates || []))
         }
-      } catch (err) {
-        console.error('Error checking availability:', err)
+      } catch {
+        // Silent fail - empty unavailable dates
       } finally {
         setLoadingAvailability(false)
       }
     }
 
-    const timer = setTimeout(checkAvailability, 500)
-    return () => clearTimeout(timer)
-  }, [formData.checkIn, formData.checkOut])
+    fetchUnavailableDates()
+  }, [])
 
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -274,6 +273,7 @@ export default function ReservationForm({ onReservationChange }: Props) {
               onReservationChange?.({ checkIn: formData.checkIn, checkOut: date, guests: formData.guests })
             }}
             unavailableDates={unavailableDates}
+            isLoading={loadingAvailability}
           />
         )}
 

@@ -31,17 +31,12 @@ export default function AdminDashboard() {
 
   async function fetchBookings() {
     try {
-      console.log('[v0] Dashboard: Fetching bookings...')
       const res = await fetch('/api/admin/bookings')
-      if (!res.ok) {
-        console.log('[v0] Dashboard: Response not OK:', res.status)
-        throw new Error('Failed to fetch')
-      }
+      if (!res.ok) throw new Error('Failed to fetch')
       const data = await res.json()
-      console.log('[v0] Dashboard: Retrieved', data.bookings?.length || 0, 'bookings')
       setBookings(data.bookings || [])
-    } catch (err) {
-      console.error('[v0] Dashboard: Error fetching bookings:', err)
+    } catch {
+      // Silent fail - empty bookings
     } finally {
       setLoading(false)
     }
@@ -109,9 +104,34 @@ export default function AdminDashboard() {
           <p className="font-sans text-sm text-[#888880]">Gestiona las solicitudes de reserva</p>
         </div>
 
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+          <div className="bg-white rounded-xl border border-[#E8E3D8] p-6 shadow-sm">
+            <div className="flex items-center justify-between mb-3">
+              <Clock className="w-8 h-8 text-yellow-500" />
+              <span className="font-serif text-3xl font-bold text-[#2C2C2C]">{statusCounts.pending}</span>
+            </div>
+            <p className="font-sans text-sm text-[#888880]">Pendientes de confirmar</p>
+          </div>
+          <div className="bg-white rounded-xl border border-[#E8E3D8] p-6 shadow-sm">
+            <div className="flex items-center justify-between mb-3">
+              <CheckCircle className="w-8 h-8 text-green-500" />
+              <span className="font-serif text-3xl font-bold text-[#2C2C2C]">{statusCounts.confirmed}</span>
+            </div>
+            <p className="font-sans text-sm text-[#888880]">Confirmadas</p>
+          </div>
+          <div className="bg-white rounded-xl border border-[#E8E3D8] p-6 shadow-sm">
+            <div className="flex items-center justify-between mb-3">
+              <Calendar className="w-8 h-8 text-[#1B4D5C]" />
+              <span className="font-serif text-3xl font-bold text-[#2C2C2C]">{bookings.length}</span>
+            </div>
+            <p className="font-sans text-sm text-[#888880]">Total de reservas</p>
+          </div>
+        </div>
+
         {/* Filters */}
-        <div className="bg-white rounded-lg border border-[#E8E3D8] p-6 mb-8">
-          <div className="flex flex-wrap gap-3 mb-4">
+        <div className="bg-white rounded-xl border border-[#E8E3D8] p-6 mb-8 shadow-sm">
+          <div className="flex flex-wrap gap-3">
             {(['all', 'pending', 'confirmed', 'cancelled'] as const).map((f) => (
               <button
                 key={f}
@@ -132,6 +152,17 @@ export default function AdminDashboard() {
               </button>
             ))}
           </div>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="mb-8">
+          <Link
+            href="/admin/calendar"
+            className="inline-flex items-center gap-2 bg-[#1B4D5C] text-white font-sans font-semibold text-sm px-6 py-3 rounded-lg hover:bg-[#2A6B7E] transition-colors shadow-sm"
+          >
+            <Calendar size={18} />
+            Gestionar calendario de bloqueos
+          </Link>
         </div>
 
         {/* Bookings List */}
