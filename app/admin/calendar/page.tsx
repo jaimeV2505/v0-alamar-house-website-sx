@@ -5,20 +5,12 @@ import { ChevronLeft, Eye, List } from 'lucide-react'
 import Link from 'next/link'
 import { CalendarGrid } from '@/components/admin/calendar-grid'
 import { BlocksList } from '@/components/admin/blocks-list'
-
-interface BlockedDate {
-  id: string
-  start_date: string
-  end_date: string
-  block_type: 'confirmed' | 'maintenance' | 'cleaning' | 'private'
-  reason?: string
-  created_at: string
-}
+import { CalendarBlock } from '@/lib/calendar'
 
 type ViewMode = 'grid' | 'list'
 
 export default function AdminCalendarPage() {
-  const [blocks, setBlocks] = useState<BlockedDate[]>([])
+  const [blocks, setBlocks] = useState<CalendarBlock[]>([])
   const [loading, setLoading] = useState(true)
   const [viewMode, setViewMode] = useState<ViewMode>('grid')
   const [deleting, setDeleting] = useState<string | null>(null)
@@ -33,14 +25,14 @@ export default function AdminCalendarPage() {
       if (!res.ok) throw new Error('Failed to fetch')
       const data = await res.json()
       setBlocks(data.blocks || [])
-    } catch (err) {
-      console.error('[v0] Error fetching calendar blocks:', err)
+    } catch {
+      // Silent fail - empty blocks is fine
     } finally {
       setLoading(false)
     }
   }
 
-  async function handleAddBlock(startDate: string, endDate: string, blockType: string, reason: string) {
+  async function handleAddBlock(startDate: string, endDate: string, blockType: string, notes: string) {
     try {
       const res = await fetch('/api/admin/calendar', {
         method: 'POST',
@@ -49,16 +41,20 @@ export default function AdminCalendarPage() {
           start_date: startDate,
           end_date: endDate,
           block_type: blockType,
-          notes: reason || null,
+          notes: notes || null,
         }),
       })
 
-      if (!res.ok) throw new Error('Failed to add block')
       const data = await res.json()
+      
+      if (!res.ok) {
+        alert(data.error || 'Error al crear bloqueo')
+        return
+      }
+      
       setBlocks([...blocks, data.block])
-    } catch (err) {
-      console.error('[v0] Error adding block:', err)
-      alert('Error al crear bloqueo')
+    } catch {
+      alert('Error de conexión al crear bloqueo')
     }
   }
 
@@ -73,8 +69,7 @@ export default function AdminCalendarPage() {
 
       if (!res.ok) throw new Error('Failed to delete')
       setBlocks(blocks.filter((b) => b.id !== blockId))
-    } catch (err) {
-      console.error('[v0] Error deleting block:', err)
+    } catch {
       alert('Error al eliminar bloqueo')
     } finally {
       setDeleting(null)

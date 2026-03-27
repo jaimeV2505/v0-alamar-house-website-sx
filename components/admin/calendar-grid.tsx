@@ -1,41 +1,22 @@
 'use client'
 
 import { useState } from 'react'
-import { ChevronLeft, ChevronRight, X, Plus, AlertCircle } from 'lucide-react'
-
-interface BlockedDate {
-  id: string
-  start_date: string
-  end_date: string
-  block_type: 'confirmed' | 'maintenance' | 'cleaning' | 'private'
-  reason?: string
-  created_at: string
-}
+import { ChevronLeft, ChevronRight, X, Plus } from 'lucide-react'
+import { CalendarBlock, BLOCK_REASONS, getBlockReasonInfo, BlockReason, calculateNights, formatDateRange } from '@/lib/calendar'
 
 interface CalendarGridProps {
-  blocks: BlockedDate[]
-  onAddBlock: (startDate: string, endDate: string, blockType: string, reason: string) => void
+  blocks: CalendarBlock[]
+  onAddBlock: (startDate: string, endDate: string, blockType: string, notes: string) => void
   onDeleteBlock: (id: string) => void
   isLoading?: boolean
 }
-
-const BLOCK_TYPE_COLORS: Record<string, { bg: string; text: string; label: string }> = {
-  confirmed: { bg: 'bg-[#6B9C85]', text: 'text-[#6B9C85]', label: 'Reserva confirmada' },
-  maintenance: { bg: 'bg-[#F39C12]', text: 'text-[#F39C12]', label: 'Mantenimiento' },
-  cleaning: { bg: 'bg-[#3498DB]', text: 'text-[#3498DB]', label: 'Limpieza' },
-  private: { bg: 'bg-[#D97373]', text: 'text-[#D97373]', label: 'Privado' },
-  unavailable: { bg: 'bg-[#888880]', text: 'text-[#888880]', label: 'No disponible' },
-  other: { bg: 'bg-[#666666]', text: 'text-[#666666]', label: 'Otro' },
-}
-
-const DEFAULT_BLOCK_COLOR = { bg: 'bg-[#888880]', text: 'text-[#888880]', label: 'Bloqueado' }
 
 export function CalendarGrid({ blocks, onAddBlock, onDeleteBlock, isLoading }: CalendarGridProps) {
   const [currentMonth, setCurrentMonth] = useState(new Date())
   const [selectedRange, setSelectedRange] = useState<{ start: string; end: string } | null>(null)
   const [showBlockForm, setShowBlockForm] = useState(false)
-  const [blockType, setBlockType] = useState<'confirmed' | 'maintenance' | 'cleaning' | 'private'>('private')
-  const [reason, setReason] = useState('')
+  const [blockType, setBlockType] = useState<BlockReason>('private')
+  const [notes, setNotes] = useState('')
 
   const getDaysInMonth = (date: Date) => {
     return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate()
@@ -49,7 +30,7 @@ export function CalendarGrid({ blocks, onAddBlock, onDeleteBlock, isLoading }: C
     return date.toISOString().split('T')[0]
   }
 
-  const isDateBlocked = (dateStr: string): BlockedDate | null => {
+  const isDateBlocked = (dateStr: string): CalendarBlock | null => {
     if (!blocks || !Array.isArray(blocks)) return null
     
     return blocks.find((b) => {
@@ -83,11 +64,11 @@ export function CalendarGrid({ blocks, onAddBlock, onDeleteBlock, isLoading }: C
 
   const handleConfirmBlock = () => {
     if (selectedRange) {
-      onAddBlock(selectedRange.start, selectedRange.end, blockType, reason)
+      onAddBlock(selectedRange.start, selectedRange.end, blockType, notes)
       setSelectedRange(null)
       setShowBlockForm(false)
       setBlockType('private')
-      setReason('')
+      setNotes('')
     }
   }
 
@@ -100,10 +81,10 @@ export function CalendarGrid({ blocks, onAddBlock, onDeleteBlock, isLoading }: C
     <div className="w-full space-y-6">
       {/* Legend */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        {Object.entries(BLOCK_TYPE_COLORS).map(([key, color]) => (
+        {Object.entries(BLOCK_REASONS).map(([key, info]) => (
           <div key={key} className="flex items-center gap-2 p-2 bg-[#F5F0E8] rounded-md">
-            <div className={`w-3 h-3 rounded-full ${color.bg}`} />
-            <span className="font-sans text-xs text-[#666666]">{color.label}</span>
+            <div className={`w-3 h-3 rounded-full ${info.bgClass}`} />
+            <span className="font-sans text-xs text-[#666666]">{info.label}</span>
           </div>
         ))}
       </div>
@@ -146,7 +127,7 @@ export function CalendarGrid({ blocks, onAddBlock, onDeleteBlock, isLoading }: C
             const dateStr = formatDateString(new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day))
             const blockedInfo = isDateBlocked(dateStr)
             const isSelected = selectedRange && dateStr >= selectedRange.start && dateStr <= selectedRange.end
-            const color = blockedInfo ? (BLOCK_TYPE_COLORS[blockedInfo.block_type] || DEFAULT_BLOCK_COLOR) : null
+            const reasonInfo = blockedInfo ? getBlockReasonInfo(blockedInfo.block_type) : null
 
             return (
               <div key={`day-${day}`} className="relative h-12">
@@ -154,7 +135,7 @@ export function CalendarGrid({ blocks, onAddBlock, onDeleteBlock, isLoading }: C
                   onClick={() => handleDateClick(day)}
                   className={`w-full h-full rounded-md border font-sans text-xs font-medium transition-colors ${
                     blockedInfo
-                      ? `${color?.bg} text-white border-transparent cursor-not-allowed`
+                      ? `${reasonInfo?.bgClass} text-white border-transparent cursor-not-allowed`
                       : isSelected
                         ? 'bg-[#D4A574]/20 border-[#D4A574]'
                         : 'bg-white border-[#E8E3D8] hover:border-[#D4A574]'
@@ -227,12 +208,12 @@ export function CalendarGrid({ blocks, onAddBlock, onDeleteBlock, isLoading }: C
 
               <div>
                 <label className="font-sans text-xs font-semibold text-[#2C2C2C] uppercase tracking-wide block mb-2">
-                  Razón (opcional)
+                  Notas (opcional)
                 </label>
                 <textarea
-                  value={reason}
-                  onChange={(e) => setReason(e.target.value)}
-                  placeholder="Ej. Inspección de plumbing..."
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  placeholder="Ej. Reserva de familia García..."
                   rows={2}
                   className="w-full font-sans text-sm px-3 py-2 border border-[#E8E3D8] rounded-md focus:border-[#1B4D5C] outline-none resize-none"
                 />
@@ -249,7 +230,7 @@ export function CalendarGrid({ blocks, onAddBlock, onDeleteBlock, isLoading }: C
                 <button
                   onClick={() => {
                     setShowBlockForm(false)
-                    setReason('')
+                    setNotes('')
                     setBlockType('private')
                   }}
                   className="flex-1 bg-white text-[#2C2C2C] font-sans text-sm font-semibold px-4 py-2 rounded-md border border-[#E8E3D8] hover:bg-[#F5F0E8] transition-colors"

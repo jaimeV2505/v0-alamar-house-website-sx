@@ -7,8 +7,6 @@ export async function GET(request: NextRequest) {
     const startDate = searchParams.get('start_date')
     const endDate = searchParams.get('end_date')
 
-    console.log('[v0] AVAILABILITY: Checking dates', { startDate, endDate })
-
     if (!startDate || !endDate) {
       return NextResponse.json(
         { error: 'start_date and end_date are required' },
@@ -27,6 +25,8 @@ export async function GET(request: NextRequest) {
       supabase
         .from('calendar_blocks')
         .select('start_date, end_date')
+        .not('start_date', 'is', null)
+        .not('end_date', 'is', null)
         .gte('end_date', startDate)
         .lte('start_date', endDate),
     ])
@@ -35,9 +35,7 @@ export async function GET(request: NextRequest) {
 
     // Add blocked calendar date ranges
     if (blockedRes.data) {
-      console.log('[v0] AVAILABILITY: Found', blockedRes.data.length, 'blocked ranges')
       blockedRes.data.forEach((block) => {
-        // Skip blocks without valid dates
         if (!block.start_date || !block.end_date) return
         
         const current = new Date(block.start_date)
@@ -52,7 +50,6 @@ export async function GET(request: NextRequest) {
 
     // Add booked date ranges
     if (bookingsRes.data) {
-      console.log('[v0] AVAILABILITY: Found', bookingsRes.data.length, 'confirmed bookings')
       bookingsRes.data.forEach((booking) => {
         const current = new Date(booking.check_in_date)
         const end = new Date(booking.check_out_date)
@@ -64,12 +61,11 @@ export async function GET(request: NextRequest) {
       })
     }
 
-    console.log('[v0] AVAILABILITY: Total unavailable dates:', unavailableDates.size)
     return NextResponse.json({
       unavailable_dates: Array.from(unavailableDates).sort(),
     })
   } catch (error) {
-    console.error('[v0] AVAILABILITY ERROR:', error)
+    console.error('Availability API error:', error)
     return NextResponse.json(
       { error: 'Error al verificar disponibilidad' },
       { status: 500 }
