@@ -3,8 +3,8 @@ import { Check, Star } from 'lucide-react'
 
 const included = [
   'Limpieza profunda incluida',
-  'Desayuno y almuerzo',
-  'Personal de apoyo',
+  'Personal de apoyo para aseo',
+  'Apoyo en cocina si el huésped provee los víveres',
   'Ropa de cama y toallas',
   'WiFi de alta velocidad',
   'Parqueadero privado',

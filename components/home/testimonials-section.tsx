@@ -13,7 +13,7 @@ const testimonials = [
     name: 'Carlos & Daniela Restrepo',
     location: 'Bogotá, Colombia',
     quote:
-      'Celebramos nuestro aniversario aquí y fue mágico. El personal fue increíblemente atento, la casa estaba impecable y el desayuno incluido fue un detalle maravilloso. Lo recomendamos sin duda.',
+      'Celebramos nuestro aniversario aquí y fue mágico. El personal fue increíblemente atento, la casa estaba impecable y el jacuzzi en la habitación principal fue un detalle soñado. Lo recomendamos sin duda.',
     rating: 5,
     occasion: 'Aniversario de bodas',
   },
