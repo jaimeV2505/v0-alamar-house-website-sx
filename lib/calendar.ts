@@ -45,10 +45,15 @@ export const DEFAULT_BLOCK_REASON: BlockReason = 'unavailable'
 
 // Get reason info with fallback
 export function getBlockReasonInfo(reason: string | null | undefined) {
-  if (!reason || !(reason in BLOCK_REASONS)) {
+  if (!reason) {
     return BLOCK_REASONS[DEFAULT_BLOCK_REASON]
   }
-  return BLOCK_REASONS[reason as BlockReason]
+  // Force lowercase to handle case mismatches
+  const normalizedReason = String(reason).toLowerCase().trim()
+  if (normalizedReason in BLOCK_REASONS) {
+    return BLOCK_REASONS[normalizedReason as BlockReason]
+  }
+  return BLOCK_REASONS[DEFAULT_BLOCK_REASON]
 }
 
 // Zod schema for creating a calendar block

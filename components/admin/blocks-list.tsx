@@ -25,6 +25,10 @@ export function BlocksList({ blocks, onDelete, isLoading }: BlocksListProps) {
     <div className="space-y-2">
       {validBlocks.map((block) => {
         const info = getBlockReasonInfo(block.block_type)
+        if (!info) {
+          console.error('[v0] No info for block_type:', block.block_type, 'block:', block)
+          return null
+        }
         const nights = calculateNights(block.start_date, block.end_date)
         const dateStr = formatDateRange(block.start_date, block.end_date)
 

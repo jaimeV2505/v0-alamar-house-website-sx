@@ -34,8 +34,6 @@ export default function AdminCalendarPage() {
 
   async function handleAddBlock(startDate: string, endDate: string, blockType: string, notes: string) {
     try {
-      console.log('[v0] Adding block:', { startDate, endDate, blockType, notes })
-      
       const payload: Record<string, string> = {
         start_date: startDate,
         end_date: endDate,
@@ -52,7 +50,6 @@ export default function AdminCalendarPage() {
       })
 
       const data = await res.json()
-      console.log('[v0] Add block response:', { ok: res.ok, status: res.status, data })
       
       if (!res.ok) {
         alert(data.error || 'Error al crear bloqueo')
@@ -61,8 +58,7 @@ export default function AdminCalendarPage() {
       
       // Refresh the entire list to ensure sync
       await fetchBlocks()
-    } catch (err) {
-      console.log('[v0] Error adding block:', err)
+    } catch {
       alert('Error de conexión al crear bloqueo')
     }
   }
