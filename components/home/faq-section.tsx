@@ -10,7 +10,7 @@ import {
 const faqs = [
   {
     q: '¿Cuántas personas puede alojar ALAMAR BEACH HOUSE?',
-    a: 'La casa tiene capacidad para hasta 20 personas. Cuenta con 4 habitaciones, sofás-camas adicionales y cunas disponibles para familias con bebés.',
+    a: 'La casa tiene capacidad para hasta 12 personas. Cuenta con 4 habitaciones, sofás-camas adicionales y cunas disponibles para familias con bebés.',
   },
   {
     q: '¿Se permiten mascotas en la propiedad?',
@@ -22,7 +22,7 @@ const faqs = [
   },
   {
     q: '¿Qué está incluido en la tarifa?',
-    a: 'La tarifa incluye limpieza profunda antes de tu llegada, desayuno y almuerzo diarios, personal de apoyo, ropa de cama, toallas, WiFi de alta velocidad y parqueadero privado.',
+    a: 'La tarifa incluye limpieza profunda antes de tu llegada, personal de apoyo para aseo durante la estadía, ropa de cama, toallas, WiFi de alta velocidad y parqueadero privado. El personal puede apoyar en la preparación de desayuno y almuerzo únicamente si el huésped suministra los víveres. Las comidas no están incluidas.',
   },
   {
     q: '¿Cuáles son los horarios de check-in y check-out?',
@@ -30,7 +30,7 @@ const faqs = [
   },
   {
     q: '¿Cómo funciona el proceso de reserva y pago?',
-    a: 'Puedes realizar tu reserva directamente en nuestro sitio web. El pago se procesa de forma segura a través de Wompi. También puedes contactarnos por WhatsApp para coordinar tu reserva personalmente.',
+    a: 'Puedes solicitar tu reserva directamente en nuestro sitio web. Nos pondremos en contacto por correo y WhatsApp para confirmar disponibilidad y coordinar el pago. También puedes contactarnos por WhatsApp para asesorarte personalmente.',
   },
   {
     q: '¿Cuál es la política de cancelación?',

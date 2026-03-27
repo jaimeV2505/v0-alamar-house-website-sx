@@ -38,7 +38,7 @@ const rules = [
   },
   {
     icon: <UtensilsCrossed size={18} />,
-    text: 'No incluye servicios de comida. Cocina equipada disponible para uso de huéspedes',
+    text: 'No incluye comidas. El personal puede apoyar en la preparación de desayuno y almuerzo únicamente si el huésped suministra los víveres',
     allowed: null,
   },
 ]

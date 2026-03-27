@@ -99,7 +99,7 @@ export default function SummaryPanel({ reservationData }: Props) {
             <div className="w-full h-px bg-[#E8E3D8]" />
 
             <div className="flex flex-col gap-2 bg-[#F5F0E8] rounded-md p-3">
-              {['Limpieza incluida', 'Desayuno y almuerzo', 'Personal de apoyo'].map((item, i) => (
+              {['Limpieza incluida', 'Personal de apoyo para aseo', 'Apoyo en cocina con víveres del huésped'].map((item, i) => (
                 <div key={i} className="flex items-center gap-2">
                   <Check size={12} className="text-[#7BA696] shrink-0" />
                   <span className="font-sans text-xs text-[#666666]">{item}</span>
@@ -141,7 +141,7 @@ export default function SummaryPanel({ reservationData }: Props) {
 
       <div className="flex items-center gap-2 justify-center">
         <Lock size={12} className="text-[#888880]" />
-        <p className="font-sans text-xs text-[#888880]">Pago seguro procesado por Wompi</p>
+        <p className="font-sans text-xs text-[#888880]">Reserva sin costo · Confirmación por WhatsApp</p>
       </div>
     </div>
   )
