@@ -37,14 +37,19 @@ export default function BookingDetailPage() {
 
   async function fetchBooking() {
     try {
+      console.log('[v0] BookingDetail: Fetching booking', bookingId)
       const res = await fetch(`/api/admin/bookings/${bookingId}`)
-      if (!res.ok) throw new Error('Failed to fetch')
+      if (!res.ok) {
+        console.log('[v0] BookingDetail: Response not OK:', res.status)
+        throw new Error('Failed to fetch')
+      }
       const data = await res.json()
+      console.log('[v0] BookingDetail: Retrieved booking:', data.booking?.id)
       setBooking(data.booking)
       setAdminNotes(data.booking?.admin_notes || '')
       setStatus(data.booking?.status || 'pending')
     } catch (err) {
-      console.error('Error fetching booking:', err)
+      console.error('[v0] BookingDetail: Error fetching booking:', err)
     } finally {
       setLoading(false)
     }

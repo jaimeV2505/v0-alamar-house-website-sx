@@ -19,12 +19,16 @@ interface CalendarGridProps {
   isLoading?: boolean
 }
 
-const BLOCK_TYPE_COLORS = {
+const BLOCK_TYPE_COLORS: Record<string, { bg: string; text: string; label: string }> = {
   confirmed: { bg: 'bg-[#6B9C85]', text: 'text-[#6B9C85]', label: 'Reserva confirmada' },
   maintenance: { bg: 'bg-[#F39C12]', text: 'text-[#F39C12]', label: 'Mantenimiento' },
   cleaning: { bg: 'bg-[#3498DB]', text: 'text-[#3498DB]', label: 'Limpieza' },
   private: { bg: 'bg-[#D97373]', text: 'text-[#D97373]', label: 'Privado' },
+  unavailable: { bg: 'bg-[#888880]', text: 'text-[#888880]', label: 'No disponible' },
+  other: { bg: 'bg-[#666666]', text: 'text-[#666666]', label: 'Otro' },
 }
+
+const DEFAULT_BLOCK_COLOR = { bg: 'bg-[#888880]', text: 'text-[#888880]', label: 'Bloqueado' }
 
 export function CalendarGrid({ blocks, onAddBlock, onDeleteBlock, isLoading }: CalendarGridProps) {
   const [currentMonth, setCurrentMonth] = useState(new Date())
@@ -46,7 +50,10 @@ export function CalendarGrid({ blocks, onAddBlock, onDeleteBlock, isLoading }: C
   }
 
   const isDateBlocked = (dateStr: string): BlockedDate | null => {
+    if (!blocks || !Array.isArray(blocks)) return null
+    
     return blocks.find((b) => {
+      if (!b || !b.start_date || !b.end_date) return false
       const date = new Date(dateStr)
       const start = new Date(b.start_date)
       const end = new Date(b.end_date)
@@ -139,7 +146,7 @@ export function CalendarGrid({ blocks, onAddBlock, onDeleteBlock, isLoading }: C
             const dateStr = formatDateString(new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day))
             const blockedInfo = isDateBlocked(dateStr)
             const isSelected = selectedRange && dateStr >= selectedRange.start && dateStr <= selectedRange.end
-            const color = blockedInfo ? BLOCK_TYPE_COLORS[blockedInfo.block_type] : null
+            const color = blockedInfo ? (BLOCK_TYPE_COLORS[blockedInfo.block_type] || DEFAULT_BLOCK_COLOR) : null
 
             return (
               <div key={`day-${day}`} className="relative h-12">
@@ -181,7 +188,7 @@ export function CalendarGrid({ blocks, onAddBlock, onDeleteBlock, isLoading }: C
                 {new Date(selectedRange.end).toLocaleDateString('es-CO')}
               </p>
               <p className="font-sans text-xs text-[#888880] mt-1">
-                {Math.ceil((new Date(selectedRange.end).getTime() - new Date(selectedRange.start).getTime()) / (1000 * 60 * 60 * 24))} días
+                {Math.ceil((new Date(selectedRange.end).getTime() - new Date(selectedRange.start).getTime()) / (1000 * 60 * 60 * 24)) + 1} día(s)
               </p>
             </div>
             <button

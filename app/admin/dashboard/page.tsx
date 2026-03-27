@@ -31,12 +31,17 @@ export default function AdminDashboard() {
 
   async function fetchBookings() {
     try {
+      console.log('[v0] Dashboard: Fetching bookings...')
       const res = await fetch('/api/admin/bookings')
-      if (!res.ok) throw new Error('Failed to fetch')
+      if (!res.ok) {
+        console.log('[v0] Dashboard: Response not OK:', res.status)
+        throw new Error('Failed to fetch')
+      }
       const data = await res.json()
+      console.log('[v0] Dashboard: Retrieved', data.bookings?.length || 0, 'bookings')
       setBookings(data.bookings || [])
     } catch (err) {
-      console.error('Error fetching bookings:', err)
+      console.error('[v0] Dashboard: Error fetching bookings:', err)
     } finally {
       setLoading(false)
     }

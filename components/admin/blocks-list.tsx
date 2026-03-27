@@ -17,15 +17,22 @@ interface BlocksListProps {
   isLoading?: boolean
 }
 
-const BLOCK_TYPE_INFO = {
+const BLOCK_TYPE_INFO: Record<string, { color: string; bg: string; label: string }> = {
   confirmed: { color: 'text-[#6B9C85]', bg: 'bg-[#6B9C85]/10', label: 'Reserva confirmada' },
   maintenance: { color: 'text-[#F39C12]', bg: 'bg-[#F39C12]/10', label: 'Mantenimiento' },
   cleaning: { color: 'text-[#3498DB]', bg: 'bg-[#3498DB]/10', label: 'Limpieza' },
   private: { color: 'text-[#D97373]', bg: 'bg-[#D97373]/10', label: 'Privado' },
+  unavailable: { color: 'text-[#888880]', bg: 'bg-[#888880]/10', label: 'No disponible' },
+  other: { color: 'text-[#666666]', bg: 'bg-[#666666]/10', label: 'Otro' },
 }
 
+const DEFAULT_BLOCK_INFO = { color: 'text-[#888880]', bg: 'bg-[#888880]/10', label: 'Bloqueado' }
+
 export function BlocksList({ blocks, onDelete, isLoading }: BlocksListProps) {
-  if (blocks.length === 0) {
+  // Filter out invalid blocks
+  const validBlocks = (blocks || []).filter(b => b && b.start_date && b.end_date)
+  
+  if (validBlocks.length === 0) {
     return (
       <div className="bg-white border border-[#E8E3D8] rounded-lg p-8 text-center">
         <p className="font-sans text-sm text-[#888880]">No hay bloqueos de fechas. Toda la casa está disponible.</p>
@@ -35,8 +42,8 @@ export function BlocksList({ blocks, onDelete, isLoading }: BlocksListProps) {
 
   return (
     <div className="space-y-2">
-      {blocks.map((block) => {
-        const info = BLOCK_TYPE_INFO[block.block_type]
+      {validBlocks.map((block) => {
+        const info = BLOCK_TYPE_INFO[block.block_type] || DEFAULT_BLOCK_INFO
         const startDate = new Date(block.start_date)
         const endDate = new Date(block.end_date)
         const nights = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24))

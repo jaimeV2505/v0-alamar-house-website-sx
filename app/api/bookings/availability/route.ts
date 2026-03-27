@@ -37,6 +37,9 @@ export async function GET(request: NextRequest) {
     if (blockedRes.data) {
       console.log('[v0] AVAILABILITY: Found', blockedRes.data.length, 'blocked ranges')
       blockedRes.data.forEach((block) => {
+        // Skip blocks without valid dates
+        if (!block.start_date || !block.end_date) return
+        
         const current = new Date(block.start_date)
         const end = new Date(block.end_date)
 

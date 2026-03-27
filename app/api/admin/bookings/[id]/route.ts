@@ -1,14 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/auth'
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    console.log('[v0] BOOKING DETAIL: Fetching booking:', params.id)
+    const { id: bookingId } = await params
+    console.log('[v0] BOOKING DETAIL: Fetching booking:', bookingId)
     
     const { data: booking, error } = await supabase
       .from('booking_requests')
       .select('*')
-      .eq('id', params.id)
+      .eq('id', bookingId)
       .single()
 
     if (error) {
@@ -38,9 +39,10 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    console.log('[v0] BOOKING UPDATE: Updating booking:', params.id)
+    const { id: bookingId } = await params
+    console.log('[v0] BOOKING UPDATE: Updating booking:', bookingId)
     
     const { status, admin_notes } = await request.json()
 
@@ -58,7 +60,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
         admin_notes: admin_notes || null,
         updated_at: new Date().toISOString(),
       })
-      .eq('id', params.id)
+      .eq('id', bookingId)
       .select()
       .single()
 

@@ -6,15 +6,21 @@ export async function GET(request: NextRequest) {
     console.log('[v0] CALENDAR API: Fetching blocks')
     const { data: blocks, error } = await supabase
       .from('calendar_blocks')
-      .select('*')
+      .select('id, start_date, end_date, block_type, notes, reason, booking_request_id, created_at')
+      .not('start_date', 'is', null)
+      .not('end_date', 'is', null)
       .order('start_date', { ascending: true })
 
     if (error) {
+      console.error('[v0] CALENDAR API: Supabase error:', error.message)
       throw error
     }
 
-    console.log('[v0] CALENDAR API: Retrieved', blocks?.length || 0, 'blocks')
-    return NextResponse.json({ blocks: blocks || [] })
+    // Filter out any blocks with invalid dates
+    const validBlocks = (blocks || []).filter(b => b.start_date && b.end_date)
+    
+    console.log('[v0] CALENDAR API: Retrieved', validBlocks.length, 'valid blocks')
+    return NextResponse.json({ blocks: validBlocks })
   } catch (error) {
     console.error('[v0] CALENDAR API: Error fetching blocks:', error)
     return NextResponse.json(
@@ -26,6 +32,15 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    // Check if service role key is configured
+    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      console.error('[v0] CALENDAR API: SUPABASE_SERVICE_ROLE_KEY not configured')
+      return NextResponse.json(
+        { error: 'Configuración de servidor incompleta' },
+        { status: 500 }
+      )
+    }
+    
     const { start_date, end_date, block_type, notes, booking_request_id } = await request.json()
 
     console.log('[v0] CALENDAR API: Creating block', { start_date, end_date, block_type })
@@ -57,10 +72,14 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (error) {
-      throw error
+      console.error('[v0] CALENDAR API: Supabase insert error:', error.message, error.code)
+      return NextResponse.json(
+        { error: `Error de base de datos: ${error.message}` },
+        { status: 500 }
+      )
     }
 
-    console.log('[v0] CALENDAR API: Block created successfully:', block.id)
+    console.log('[v0] CALENDAR API: Block created successfully:', block?.id)
     return NextResponse.json({ block }, { status: 201 })
   } catch (error) {
     console.error('[v0] CALENDAR API: Error creating block:', error)
