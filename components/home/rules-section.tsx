@@ -1,4 +1,4 @@
-import { PawPrint, PartyPopper, ShieldAlert, Clock, Cigarette, Volume2 } from 'lucide-react'
+import { PawPrint, PartyPopper, ShieldAlert, Clock, Cigarette, Volume2, UtensilsCrossed } from 'lucide-react'
 
 const rules = [
   {
@@ -34,6 +34,11 @@ const rules = [
   {
     icon: <Volume2 size={18} />,
     text: 'Respeto por el descanso de vecinos después de las 11 PM',
+    allowed: null,
+  },
+  {
+    icon: <UtensilsCrossed size={18} />,
+    text: 'No incluye servicios de comida. Cocina equipada disponible para uso de huéspedes',
     allowed: null,
   },
 ]

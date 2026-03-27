@@ -44,7 +44,7 @@ export default function RoomsSection() {
             Espacios diseñados<br />para el confort
           </h2>
           <p className="mt-5 font-sans text-base text-[#666666] max-w-xl mx-auto leading-relaxed">
-            4 habitaciones, 5 baños y capacidad para hasta 20 personas. La casa perfecta para toda la familia.
+            4 habitaciones, 5 baños y capacidad para hasta 12 personas. La casa perfecta para toda la familia.
           </p>
         </div>
 
@@ -53,7 +53,7 @@ export default function RoomsSection() {
           {[
             { icon: <BedDouble size={24} className="text-[#1B4D5C]" />, value: '4', label: 'Habitaciones' },
             { icon: <Bath size={24} className="text-[#1B4D5C]" />, value: '5', label: 'Baños' },
-            { icon: <Users size={24} className="text-[#1B4D5C]" />, value: '20', label: 'Personas máx.' },
+            { icon: <Users size={24} className="text-[#1B4D5C]" />, value: '12', label: 'Personas máx.' },
             { icon: <BedSingle size={24} className="text-[#1B4D5C]" />, value: '8', label: 'Camas totales' },
           ].map((stat, i) => (
             <div key={i} className="flex flex-col items-center gap-3 p-6 bg-[#F5F0E8] rounded-lg border border-[#E8E3D8] text-center">
@@ -96,9 +96,9 @@ export default function RoomsSection() {
         <div className="mt-8 p-6 bg-[#F5F0E8] border border-[#E8E3D8] rounded-lg flex items-start gap-4">
           <div className="w-1 self-stretch bg-[#D4A574] rounded-full shrink-0" />
           <div>
-            <p className="font-sans text-sm font-semibold text-[#2C2C2C] mb-1">Capacidad ampliada</p>
+            <p className="font-sans text-sm font-semibold text-[#2C2C2C] mb-1">Capacidad flexible</p>
             <p className="font-sans text-sm text-[#666666] leading-relaxed">
-              La casa cuenta con sofás-camas adicionales para ampliar la capacidad hasta 20 personas.
+              La casa cuenta con sofás-camas adicionales para ampliar la capacidad hasta 12 personas.
               Además, disponemos de cunas para los más pequeños de la familia.
             </p>
           </div>

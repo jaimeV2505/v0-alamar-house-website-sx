@@ -1,8 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { calculatePrice, PricingResult } from '@/lib/pricing'
+import { useState, useEffect } from 'react'
+import { AlertCircle, CheckCircle, ExternalLink } from 'lucide-react'
 
 interface FormData {
   fullName: string
@@ -39,11 +38,10 @@ function validate(data: FormData): FormErrors {
 }
 
 interface Props {
-  onPricingChange: (pricing: PricingResult | null) => void
+  onPricingChange?: (pricing: any) => void
 }
 
 export default function ReservationForm({ onPricingChange }: Props) {
-  const router = useRouter()
   const [formData, setFormData] = useState<FormData>({
     fullName: '',
     email: '',
@@ -56,6 +54,39 @@ export default function ReservationForm({ onPricingChange }: Props) {
   const [errors, setErrors] = useState<FormErrors>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
+  const [successMessage, setSuccessMessage] = useState<string | null>(null)
+  const [unavailableDates, setUnavailableDates] = useState<Set<string>>(new Set())
+  const [loadingAvailability, setLoadingAvailability] = useState(false)
+
+  const today = new Date().toISOString().split('T')[0]
+
+  // Fetch unavailable dates when dates change
+  useEffect(() => {
+    const checkAvailability = async () => {
+      if (!formData.checkIn || !formData.checkOut) {
+        setUnavailableDates(new Set())
+        return
+      }
+
+      setLoadingAvailability(true)
+      try {
+        const res = await fetch(
+          `/api/bookings/availability?start_date=${formData.checkIn}&end_date=${formData.checkOut}`
+        )
+        if (res.ok) {
+          const data = await res.json()
+          setUnavailableDates(new Set(data.unavailable_dates || []))
+        }
+      } catch (err) {
+        console.error('Error checking availability:', err)
+      } finally {
+        setLoadingAvailability(false)
+      }
+    }
+
+    const timer = setTimeout(checkAvailability, 500)
+    return () => clearTimeout(timer)
+  }, [formData.checkIn, formData.checkOut])
 
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -66,16 +97,6 @@ export default function ReservationForm({ onPricingChange }: Props) {
     if (errors[name as keyof FormErrors]) {
       setErrors((prev) => ({ ...prev, [name]: undefined }))
     }
-    if (
-      (name === 'checkIn' || name === 'checkOut') &&
-      updated.checkIn &&
-      updated.checkOut &&
-      updated.checkOut > updated.checkIn
-    ) {
-      onPricingChange(calculatePrice(new Date(updated.checkIn), new Date(updated.checkOut)))
-    } else if (name === 'checkIn' || name === 'checkOut') {
-      onPricingChange(null)
-    }
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -85,21 +106,63 @@ export default function ReservationForm({ onPricingChange }: Props) {
       setErrors(validationErrors)
       return
     }
+
+    // Check for unavailable dates
+    if (unavailableDates.size > 0) {
+      setSubmitError('Una o más fechas seleccionadas no están disponibles. Por favor, elige otras fechas.')
+      return
+    }
+
     setIsSubmitting(true)
     setSubmitError(null)
+    setSuccessMessage(null)
+
     try {
-      const res = await fetch('/api/wompi/checkout', {
+      const res = await fetch('/api/bookings/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          guest_name: formData.fullName,
+          guest_email: formData.email,
+          guest_phone: formData.phone,
+          check_in_date: formData.checkIn,
+          check_out_date: formData.checkOut,
+          number_of_guests: parseInt(formData.guests),
+          special_requests: formData.message || null,
+        }),
       })
+
       const data = await res.json()
-      if (!res.ok) throw new Error(data.error || 'Error al procesar la reserva.')
-      if (data.redirectUrl) {
-        window.location.href = data.redirectUrl
-      } else {
-        router.push(`/pago/resultado?status=pending&reference=${data.reference}`)
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Error al procesar la reserva.')
       }
+
+      setSuccessMessage(
+        `¡Reserva recibida! Nos pondremos en contacto pronto a ${formData.email} para confirmar. Gracias.`
+      )
+
+      // Generate WhatsApp message link
+      const checkInDate = new Date(formData.checkIn).toLocaleDateString('es-CO')
+      const checkOutDate = new Date(formData.checkOut).toLocaleDateString('es-CO')
+      const whatsappMessage = `Hola, estoy interesado en reservar ALAMAR HOUSE del ${checkInDate} al ${checkOutDate} para ${formData.guests} ${formData.guests === '1' ? 'persona' : 'personas'}. Mi nombre es ${formData.fullName} y mi correo es ${formData.email}. ${formData.message ? `Notas: ${formData.message}` : ''}`
+      const whatsappUrl = `https://wa.me/573000000000?text=${encodeURIComponent(whatsappMessage)}`
+
+      // Reset form
+      setFormData({
+        fullName: '',
+        email: '',
+        phone: '',
+        checkIn: '',
+        checkOut: '',
+        guests: '',
+        message: '',
+      })
+
+      // Optionally open WhatsApp
+      setTimeout(() => {
+        window.open(whatsappUrl, '_blank')
+      }, 1500)
     } catch (err: unknown) {
       setSubmitError(err instanceof Error ? err.message : 'Error inesperado. Inténtalo de nuevo.')
     } finally {
@@ -112,7 +175,9 @@ export default function ReservationForm({ onPricingChange }: Props) {
   const inputClass = (field: keyof FormErrors) =>
     `${inputBase} ${errors[field] ? 'border-[#D97373] focus:border-[#D97373]' : 'border-[#E8E3D8] focus:border-[#1B4D5C]'}`
 
-  const today = new Date().toISOString().split('T')[0]
+  const isDateUnavailable = (dateString: string): boolean => {
+    return unavailableDates.has(dateString)
+  }
 
   return (
     <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-6">
@@ -122,9 +187,13 @@ export default function ReservationForm({ onPricingChange }: Props) {
           Nombre completo <span className="text-[#D97373]">*</span>
         </label>
         <input
-          id="fullName" name="fullName" type="text" autoComplete="name"
+          id="fullName"
+          name="fullName"
+          type="text"
+          autoComplete="name"
           placeholder="Ej. María Fernanda Ospina"
-          value={formData.fullName} onChange={handleChange}
+          value={formData.fullName}
+          onChange={handleChange}
           className={inputClass('fullName')}
         />
         {errors.fullName && <p className="font-sans text-xs text-[#D97373]">{errors.fullName}</p>}
@@ -137,9 +206,13 @@ export default function ReservationForm({ onPricingChange }: Props) {
             Correo electrónico <span className="text-[#D97373]">*</span>
           </label>
           <input
-            id="email" name="email" type="email" autoComplete="email"
+            id="email"
+            name="email"
+            type="email"
+            autoComplete="email"
             placeholder="tu@correo.com"
-            value={formData.email} onChange={handleChange}
+            value={formData.email}
+            onChange={handleChange}
             className={inputClass('email')}
           />
           {errors.email && <p className="font-sans text-xs text-[#D97373]">{errors.email}</p>}
@@ -149,9 +222,13 @@ export default function ReservationForm({ onPricingChange }: Props) {
             Teléfono / WhatsApp <span className="text-[#D97373]">*</span>
           </label>
           <input
-            id="phone" name="phone" type="tel" autoComplete="tel"
+            id="phone"
+            name="phone"
+            type="tel"
+            autoComplete="tel"
             placeholder="+57 300 000 0000"
-            value={formData.phone} onChange={handleChange}
+            value={formData.phone}
+            onChange={handleChange}
             className={inputClass('phone')}
           />
           {errors.phone && <p className="font-sans text-xs text-[#D97373]">{errors.phone}</p>}
@@ -165,8 +242,12 @@ export default function ReservationForm({ onPricingChange }: Props) {
             Fecha de llegada <span className="text-[#D97373]">*</span>
           </label>
           <input
-            id="checkIn" name="checkIn" type="date" min={today}
-            value={formData.checkIn} onChange={handleChange}
+            id="checkIn"
+            name="checkIn"
+            type="date"
+            min={today}
+            value={formData.checkIn}
+            onChange={handleChange}
             className={inputClass('checkIn')}
           />
           {errors.checkIn && <p className="font-sans text-xs text-[#D97373]">{errors.checkIn}</p>}
@@ -176,11 +257,18 @@ export default function ReservationForm({ onPricingChange }: Props) {
             Fecha de salida <span className="text-[#D97373]">*</span>
           </label>
           <input
-            id="checkOut" name="checkOut" type="date" min={formData.checkIn || today}
-            value={formData.checkOut} onChange={handleChange}
+            id="checkOut"
+            name="checkOut"
+            type="date"
+            min={formData.checkIn || today}
+            value={formData.checkOut}
+            onChange={handleChange}
             className={inputClass('checkOut')}
           />
           {errors.checkOut && <p className="font-sans text-xs text-[#D97373]">{errors.checkOut}</p>}
+          {loadingAvailability && (
+            <p className="font-sans text-xs text-[#888880]">Verificando disponibilidad...</p>
+          )}
         </div>
       </div>
 
@@ -190,13 +278,17 @@ export default function ReservationForm({ onPricingChange }: Props) {
           Número de huéspedes <span className="text-[#D97373]">*</span>
         </label>
         <select
-          id="guests" name="guests"
-          value={formData.guests} onChange={handleChange}
+          id="guests"
+          name="guests"
+          value={formData.guests}
+          onChange={handleChange}
           className={`${inputClass('guests')} cursor-pointer`}
         >
           <option value="">Selecciona...</option>
-          {Array.from({ length: 20 }, (_, i) => i + 1).map((n) => (
-            <option key={n} value={n}>{n} {n === 1 ? 'persona' : 'personas'}</option>
+          {Array.from({ length: 12 }, (_, i) => i + 1).map((n) => (
+            <option key={n} value={n}>
+              {n} {n === 1 ? 'persona' : 'personas'}
+            </option>
           ))}
         </select>
         {errors.guests && <p className="font-sans text-xs text-[#D97373]">{errors.guests}</p>}
@@ -209,28 +301,46 @@ export default function ReservationForm({ onPricingChange }: Props) {
           <span className="font-normal text-[#888880] normal-case tracking-normal">(opcional)</span>
         </label>
         <textarea
-          id="message" name="message" rows={4}
+          id="message"
+          name="message"
+          rows={4}
           placeholder="Ocasión especial, necesidades particulares, preguntas..."
-          value={formData.message} onChange={handleChange}
+          value={formData.message}
+          onChange={handleChange}
           className={`${inputBase} border-[#E8E3D8] focus:border-[#1B4D5C] resize-none`}
         />
       </div>
 
       {submitError && (
-        <div className="bg-[#D97373]/10 border border-[#D97373]/30 rounded-sm px-4 py-3">
+        <div className="bg-[#D97373]/10 border border-[#D97373]/30 rounded-sm px-4 py-3 flex items-start gap-3">
+          <AlertCircle className="w-5 h-5 text-[#D97373] flex-shrink-0 mt-0.5" />
           <p className="font-sans text-sm text-[#D97373]">{submitError}</p>
         </div>
       )}
 
+      {successMessage && (
+        <div className="bg-[#6B9C85]/10 border border-[#6B9C85] rounded-sm px-4 py-3 flex items-start gap-3">
+          <CheckCircle className="w-5 h-5 text-[#6B9C85] flex-shrink-0 mt-0.5" />
+          <div>
+            <p className="font-sans text-sm text-[#6B9C85]">{successMessage}</p>
+            <p className="font-sans text-xs text-[#6B9C85] mt-2 flex items-center gap-1">
+              Te redirigiremos a WhatsApp para confirmar rápidamente...
+              <ExternalLink size={12} />
+            </p>
+          </div>
+        </div>
+      )}
+
       <button
-        type="submit" disabled={isSubmitting}
+        type="submit"
+        disabled={isSubmitting || loadingAvailability}
         className="w-full bg-[#1B4D5C] text-white font-sans font-semibold text-sm px-8 py-4 rounded-sm tracking-wide hover:bg-[#2A6B7E] transition-colors duration-300 disabled:opacity-60 disabled:cursor-not-allowed"
       >
-        {isSubmitting ? 'Procesando...' : 'Continuar al pago con Wompi'}
+        {isSubmitting ? 'Procesando tu reserva...' : 'Solicitar reserva'}
       </button>
 
       <p className="font-sans text-xs text-[#888880] text-center leading-relaxed">
-        Al reservar aceptas nuestras políticas de cancelación. El pago es procesado de forma segura por Wompi.
+        Te contactaremos por correo y WhatsApp para confirmar tu reserva. No hay costo por solicitar.
       </p>
     </form>
   )

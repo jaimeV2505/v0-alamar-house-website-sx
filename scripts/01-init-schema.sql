@@ -72,7 +72,7 @@ CREATE POLICY "Only admins can view users"
 
 CREATE POLICY "Only admins can manage booking requests"
   ON booking_requests FOR UPDATE
-  USING (auth.uid()::uuid IN (SELECT id FROM users WHERE role = 'super_admin'));
+  WITH CHECK (auth.uid()::uuid IN (SELECT id FROM users WHERE role = 'super_admin'));
 
 CREATE POLICY "Only admins can delete bookings"
   ON booking_requests FOR DELETE
@@ -85,7 +85,7 @@ CREATE POLICY "Anyone can view calendar blocks"
 
 CREATE POLICY "Only admins can manage calendar blocks"
   ON calendar_blocks FOR INSERT
-  USING (auth.uid()::uuid IN (SELECT id FROM users WHERE role = 'super_admin'));
+  WITH CHECK (auth.uid()::uuid IN (SELECT id FROM users WHERE role = 'super_admin'));
 
 CREATE POLICY "Only admins can delete calendar blocks"
   ON calendar_blocks FOR DELETE
