@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { AlertCircle, CheckCircle, ExternalLink } from 'lucide-react'
+import { AlertCircle, CheckCircle, ExternalLink, Calendar } from 'lucide-react'
+import { DateRangeCalendar } from './date-range-calendar'
 
 interface FormData {
   fullName: string
@@ -57,6 +58,7 @@ export default function ReservationForm({ onReservationChange }: Props) {
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
   const [unavailableDates, setUnavailableDates] = useState<Set<string>>(new Set())
   const [loadingAvailability, setLoadingAvailability] = useState(false)
+  const [showCalendar, setShowCalendar] = useState(false)
 
   const today = new Date().toISOString().split('T')[0]
 
@@ -243,40 +245,72 @@ export default function ReservationForm({ onReservationChange }: Props) {
         </div>
       </div>
 
-      {/* Dates */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="checkIn" className="font-sans text-xs font-semibold text-[#2C2C2C] uppercase tracking-wide">
-            Fecha de llegada <span className="text-[#D97373]">*</span>
+      {/* Dates with Calendar */}
+      <div className="flex flex-col gap-3">
+        <div className="flex items-center justify-between">
+          <label className="font-sans text-xs font-semibold text-[#2C2C2C] uppercase tracking-wide">
+            Selecciona tus fechas <span className="text-[#D97373]">*</span>
           </label>
-          <input
-            id="checkIn"
-            name="checkIn"
-            type="date"
-            min={today}
-            value={formData.checkIn}
-            onChange={handleChange}
-            className={inputClass('checkIn')}
-          />
-          {errors.checkIn && <p className="font-sans text-xs text-[#D97373]">{errors.checkIn}</p>}
+          <button
+            type="button"
+            onClick={() => setShowCalendar(!showCalendar)}
+            className="flex items-center gap-2 font-sans text-xs text-[#1B4D5C] hover:text-[#2A6B7E] transition-colors"
+          >
+            <Calendar size={14} />
+            {showCalendar ? 'Ocultar' : 'Ver'} calendario
+          </button>
         </div>
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="checkOut" className="font-sans text-xs font-semibold text-[#2C2C2C] uppercase tracking-wide">
-            Fecha de salida <span className="text-[#D97373]">*</span>
-          </label>
-          <input
-            id="checkOut"
-            name="checkOut"
-            type="date"
-            min={formData.checkIn || today}
-            value={formData.checkOut}
-            onChange={handleChange}
-            className={inputClass('checkOut')}
+
+        {showCalendar && (
+          <DateRangeCalendar
+            checkIn={formData.checkIn}
+            checkOut={formData.checkOut}
+            onCheckInChange={(date) => {
+              setFormData((prev) => ({ ...prev, checkIn: date }))
+              onReservationChange?.({ checkIn: date, checkOut: formData.checkOut, guests: formData.guests })
+            }}
+            onCheckOutChange={(date) => {
+              setFormData((prev) => ({ ...prev, checkOut: date }))
+              onReservationChange?.({ checkIn: formData.checkIn, checkOut: date, guests: formData.guests })
+            }}
+            unavailableDates={unavailableDates}
           />
-          {errors.checkOut && <p className="font-sans text-xs text-[#D97373]">{errors.checkOut}</p>}
-          {loadingAvailability && (
-            <p className="font-sans text-xs text-[#888880]">Verificando disponibilidad...</p>
-          )}
+        )}
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="checkIn" className="font-sans text-xs font-semibold text-[#2C2C2C] uppercase tracking-wide">
+              Fecha de llegada <span className="text-[#D97373]">*</span>
+            </label>
+            <input
+              id="checkIn"
+              name="checkIn"
+              type="date"
+              min={today}
+              value={formData.checkIn}
+              onChange={handleChange}
+              className={inputClass('checkIn')}
+            />
+            {errors.checkIn && <p className="font-sans text-xs text-[#D97373]">{errors.checkIn}</p>}
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="checkOut" className="font-sans text-xs font-semibold text-[#2C2C2C] uppercase tracking-wide">
+              Fecha de salida <span className="text-[#D97373]">*</span>
+            </label>
+            <input
+              id="checkOut"
+              name="checkOut"
+              type="date"
+              min={formData.checkIn || today}
+              value={formData.checkOut}
+              onChange={handleChange}
+              className={inputClass('checkOut')}
+            />
+            {errors.checkOut && <p className="font-sans text-xs text-[#D97373]">{errors.checkOut}</p>}
+            {loadingAvailability && (
+              <p className="font-sans text-xs text-[#888880]">Verificando disponibilidad...</p>
+            )}
+          </div>
         </div>
       </div>
 
