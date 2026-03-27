@@ -82,6 +82,7 @@ export async function POST(request: NextRequest) {
     const { data: block, error } = await supabase
       .from('calendar_blocks')
       .insert({
+        block_date: start_date, // Required NOT NULL column - use start_date
         start_date,
         end_date,
         block_type,
