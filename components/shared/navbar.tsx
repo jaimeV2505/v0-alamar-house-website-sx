@@ -24,28 +24,25 @@ export default function Navbar() {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-        scrolled
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled
           ? 'bg-[#FAFAF8]/95 backdrop-blur-md shadow-sm border-b border-[#E8E3D8]'
           : 'bg-transparent'
-      }`}
+        }`}
     >
       <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-20 flex items-center justify-between h-18 py-4">
         {/* Logo */}
         <Link href="/" className="flex flex-col leading-none group">
           <span
-            className={`font-serif text-xl font-bold tracking-wide transition-colors duration-300 ${
-              scrolled ? 'text-[#1B4D5C]' : 'text-white'
-            }`}
+            className={`font-serif text-xl font-bold tracking-wide transition-colors duration-300 ${scrolled ? 'text-[#1B4D5C]' : 'text-white'
+              }`}
           >
             ALAMAR
           </span>
           <span
-            className={`font-sans text-xs tracking-[0.25em] uppercase transition-colors duration-300 ${
-              scrolled ? 'text-[#D4A574]' : 'text-[#D4A574]'
-            }`}
+            className={`font-sans text-xs tracking-[0.25em] uppercase transition-colors duration-300 ${scrolled ? 'text-[#D4A574]' : 'text-[#D4A574]'
+              }`}
           >
-            HOUSE
+            BEACH HOUSE
           </span>
         </Link>
 
@@ -55,9 +52,8 @@ export default function Navbar() {
             <Link
               key={link.href}
               href={link.href}
-              className={`font-sans text-sm tracking-wide transition-colors duration-300 hover:text-[#D4A574] ${
-                scrolled ? 'text-[#2C2C2C]' : 'text-white/90'
-              }`}
+              className={`font-sans text-sm tracking-wide transition-colors duration-300 hover:text-[#D4A574] ${scrolled ? 'text-[#2C2C2C]' : 'text-white/90'
+                }`}
             >
               {link.label}
             </Link>
@@ -76,9 +72,8 @@ export default function Navbar() {
 
         {/* Mobile hamburger */}
         <button
-          className={`md:hidden p-2 transition-colors ${
-            scrolled ? 'text-[#2C2C2C]' : 'text-white'
-          }`}
+          className={`md:hidden p-2 transition-colors ${scrolled ? 'text-[#2C2C2C]' : 'text-white'
+            }`}
           onClick={() => setMenuOpen(!menuOpen)}
           aria-label="Abrir menú"
         >

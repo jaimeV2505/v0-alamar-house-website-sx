@@ -10,7 +10,7 @@ export default function Footer() {
           <div className="flex flex-col gap-4">
             <div>
               <p className="font-serif text-2xl font-bold tracking-wide">ALAMAR</p>
-              <p className="font-sans text-xs tracking-[0.25em] uppercase text-[#D4A574]">HOUSE</p>
+              <p className="font-sans text-xs tracking-[0.25em] uppercase text-[#D4A574]"> BEACH HOUSE</p>
             </div>
             <p className="font-sans text-sm text-white/70 leading-relaxed max-w-xs">
               Una villa boutique de lujo a 30 metros del mar en Playa Blanca, San Antero. Tu refugio tropical está esperando.
