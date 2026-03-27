@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/auth'
+import { createBlockSchema, CalendarBlock } from '@/lib/calendar'
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
-    console.log('[v0] CALENDAR API: Fetching blocks')
     const { data: blocks, error } = await supabase
       .from('calendar_blocks')
       .select('id, start_date, end_date, block_type, notes, reason, booking_request_id, created_at')
@@ -12,50 +12,51 @@ export async function GET(request: NextRequest) {
       .order('start_date', { ascending: true })
 
     if (error) {
-      console.error('[v0] CALENDAR API: Supabase error:', error.message)
-      throw error
+      return NextResponse.json({ error: 'Error al obtener bloqueos' }, { status: 500 })
     }
 
-    // Filter out any blocks with invalid dates
-    const validBlocks = (blocks || []).filter(b => b.start_date && b.end_date)
-    
-    console.log('[v0] CALENDAR API: Retrieved', validBlocks.length, 'valid blocks')
+    // Filter and normalize blocks
+    const validBlocks: CalendarBlock[] = (blocks || [])
+      .filter(b => b.start_date && b.end_date)
+      .map(b => ({
+        ...b,
+        block_type: b.block_type || b.reason || 'unavailable',
+      }))
+
     return NextResponse.json({ blocks: validBlocks })
-  } catch (error) {
-    console.error('[v0] CALENDAR API: Error fetching blocks:', error)
-    return NextResponse.json(
-      { error: 'Error al obtener fechas bloqueadas' },
-      { status: 500 }
-    )
+  } catch {
+    return NextResponse.json({ error: 'Error interno' }, { status: 500 })
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
-    // Check if service role key is configured
-    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
-      console.error('[v0] CALENDAR API: SUPABASE_SERVICE_ROLE_KEY not configured')
-      return NextResponse.json(
-        { error: 'Configuración de servidor incompleta' },
-        { status: 500 }
-      )
-    }
+    const body = await request.json()
     
-    const { start_date, end_date, block_type, notes, booking_request_id } = await request.json()
-
-    console.log('[v0] CALENDAR API: Creating block', { start_date, end_date, block_type })
-
-    if (!start_date || !end_date) {
+    // Validate with Zod
+    const parsed = createBlockSchema.safeParse(body)
+    if (!parsed.success) {
+      const firstError = parsed.error.errors[0]
       return NextResponse.json(
-        { error: 'start_date y end_date son requeridos' },
+        { error: firstError.message },
         { status: 400 }
       )
     }
 
-    if (new Date(end_date) < new Date(start_date)) {
+    const { start_date, end_date, block_type, notes, booking_request_id } = parsed.data
+
+    // Check for overlapping blocks
+    const { data: existingBlocks } = await supabase
+      .from('calendar_blocks')
+      .select('id, start_date, end_date')
+      .not('start_date', 'is', null)
+      .lte('start_date', end_date)
+      .gte('end_date', start_date)
+
+    if (existingBlocks && existingBlocks.length > 0) {
       return NextResponse.json(
-        { error: 'end_date debe ser posterior a start_date' },
-        { status: 400 }
+        { error: 'Ya existe un bloqueo en ese rango de fechas' },
+        { status: 409 }
       )
     }
 
@@ -64,7 +65,7 @@ export async function POST(request: NextRequest) {
       .insert({
         start_date,
         end_date,
-        block_type: block_type || 'private',
+        block_type,
         notes: notes || null,
         booking_request_id: booking_request_id || null,
       })
@@ -72,20 +73,14 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (error) {
-      console.error('[v0] CALENDAR API: Supabase insert error:', error.message, error.code)
       return NextResponse.json(
-        { error: `Error de base de datos: ${error.message}` },
+        { error: 'Error al crear bloqueo' },
         { status: 500 }
       )
     }
 
-    console.log('[v0] CALENDAR API: Block created successfully:', block?.id)
     return NextResponse.json({ block }, { status: 201 })
-  } catch (error) {
-    console.error('[v0] CALENDAR API: Error creating block:', error)
-    return NextResponse.json(
-      { error: 'Error al crear bloqueo de fechas' },
-      { status: 500 }
-    )
+  } catch {
+    return NextResponse.json({ error: 'Error interno' }, { status: 500 })
   }
 }

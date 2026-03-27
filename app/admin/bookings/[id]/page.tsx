@@ -37,19 +37,14 @@ export default function BookingDetailPage() {
 
   async function fetchBooking() {
     try {
-      console.log('[v0] BookingDetail: Fetching booking', bookingId)
       const res = await fetch(`/api/admin/bookings/${bookingId}`)
-      if (!res.ok) {
-        console.log('[v0] BookingDetail: Response not OK:', res.status)
-        throw new Error('Failed to fetch')
-      }
+      if (!res.ok) throw new Error('Failed to fetch')
       const data = await res.json()
-      console.log('[v0] BookingDetail: Retrieved booking:', data.booking?.id)
       setBooking(data.booking)
       setAdminNotes(data.booking?.admin_notes || '')
       setStatus(data.booking?.status || 'pending')
-    } catch (err) {
-      console.error('[v0] BookingDetail: Error fetching booking:', err)
+    } catch {
+      // Booking not found or error - handled in UI
     } finally {
       setLoading(false)
     }
@@ -113,11 +108,16 @@ export default function BookingDetailPage() {
         }),
       })
 
-      if (!res.ok) throw new Error('Failed to block dates')
-      alert('Fechas bloqueadas correctamente')
+      const data = await res.json()
+      
+      if (!res.ok) {
+        alert(data.error || 'Error al bloquear fechas')
+        return
+      }
+      
+      alert('Fechas bloqueadas correctamente en el calendario')
     } catch (err) {
-      console.error('Error blocking dates:', err)
-      alert('Error al bloquear fechas')
+      alert('Error de conexión al bloquear fechas')
     } finally {
       setBlockingDates(false)
     }

@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { BLOCK_REASONS } from '@/lib/calendar'
 
 interface DateRangeCalendarProps {
   checkIn: string
@@ -84,7 +85,7 @@ export function DateRangeCalendar({
       {/* Calendar Legend */}
       <div className="mb-4 flex flex-wrap gap-3 text-xs">
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-[#6B9C85]" />
+          <div className={`w-3 h-3 rounded-full ${BLOCK_REASONS.confirmed.bgClass}`} />
           <span className="text-[#666666]">Disponible</span>
         </div>
         <div className="flex items-center gap-2">
@@ -92,7 +93,7 @@ export function DateRangeCalendar({
           <span className="text-[#666666]">Seleccionado</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-[#D97373]" />
+          <div className={`w-3 h-3 rounded-full ${BLOCK_REASONS.private.bgClass}`} />
           <span className="text-[#666666]">No disponible</span>
         </div>
       </div>

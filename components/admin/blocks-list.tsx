@@ -1,32 +1,13 @@
 'use client'
 
-import { Trash2, Edit2 } from 'lucide-react'
-
-interface BlockedDate {
-  id: string
-  start_date: string
-  end_date: string
-  block_type: 'confirmed' | 'maintenance' | 'cleaning' | 'private'
-  reason?: string
-  created_at: string
-}
+import { Trash2 } from 'lucide-react'
+import { CalendarBlock, getBlockReasonInfo, calculateNights, formatDateRange } from '@/lib/calendar'
 
 interface BlocksListProps {
-  blocks: BlockedDate[]
+  blocks: CalendarBlock[]
   onDelete: (id: string) => void
   isLoading?: boolean
 }
-
-const BLOCK_TYPE_INFO: Record<string, { color: string; bg: string; label: string }> = {
-  confirmed: { color: 'text-[#6B9C85]', bg: 'bg-[#6B9C85]/10', label: 'Reserva confirmada' },
-  maintenance: { color: 'text-[#F39C12]', bg: 'bg-[#F39C12]/10', label: 'Mantenimiento' },
-  cleaning: { color: 'text-[#3498DB]', bg: 'bg-[#3498DB]/10', label: 'Limpieza' },
-  private: { color: 'text-[#D97373]', bg: 'bg-[#D97373]/10', label: 'Privado' },
-  unavailable: { color: 'text-[#888880]', bg: 'bg-[#888880]/10', label: 'No disponible' },
-  other: { color: 'text-[#666666]', bg: 'bg-[#666666]/10', label: 'Otro' },
-}
-
-const DEFAULT_BLOCK_INFO = { color: 'text-[#888880]', bg: 'bg-[#888880]/10', label: 'Bloqueado' }
 
 export function BlocksList({ blocks, onDelete, isLoading }: BlocksListProps) {
   // Filter out invalid blocks
@@ -43,10 +24,9 @@ export function BlocksList({ blocks, onDelete, isLoading }: BlocksListProps) {
   return (
     <div className="space-y-2">
       {validBlocks.map((block) => {
-        const info = BLOCK_TYPE_INFO[block.block_type] || DEFAULT_BLOCK_INFO
-        const startDate = new Date(block.start_date)
-        const endDate = new Date(block.end_date)
-        const nights = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24))
+        const info = getBlockReasonInfo(block.block_type)
+        const nights = calculateNights(block.start_date, block.end_date)
+        const dateStr = formatDateRange(block.start_date, block.end_date)
 
         return (
           <div
@@ -55,16 +35,14 @@ export function BlocksList({ blocks, onDelete, isLoading }: BlocksListProps) {
           >
             <div className="flex-1">
               <div className="flex items-center gap-3">
-                <span className={`font-sans text-xs font-semibold px-2 py-1 rounded-full ${info.bg} ${info.color}`}>
+                <span className={`font-sans text-xs font-semibold px-2 py-1 rounded-full ${info.bgLightClass} ${info.textClass}`}>
                   {info.label}
                 </span>
-                <p className="font-sans font-semibold text-[#2C2C2C]">
-                  {startDate.toLocaleDateString('es-CO')} → {endDate.toLocaleDateString('es-CO')}
-                </p>
+                <p className="font-sans font-semibold text-[#2C2C2C]">{dateStr}</p>
               </div>
-              <div className="mt-2 flex items-center gap-4">
-                <p className="font-sans text-xs text-[#888880]">{nights} días</p>
-                {block.reason && <p className="font-sans text-sm text-[#666666]">{block.reason}</p>}
+              <div className="mt-2 flex flex-wrap items-center gap-4">
+                <p className="font-sans text-xs text-[#888880]">{nights} día{nights !== 1 ? 's' : ''}</p>
+                {block.notes && <p className="font-sans text-sm text-[#666666]">{block.notes}</p>}
                 <p className="font-sans text-xs text-[#AAAAAA]">
                   {new Date(block.created_at).toLocaleDateString('es-CO', {
                     year: 'numeric',
