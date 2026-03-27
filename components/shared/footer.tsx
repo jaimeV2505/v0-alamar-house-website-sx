@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { MapPin, Phone, Mail, Instagram, MessageCircle } from 'lucide-react'
+import { MapPin, Phone, Mail, Instagram, MessageCircle, Music } from 'lucide-react'
 
 export default function Footer() {
   return (
@@ -24,6 +24,15 @@ export default function Footer() {
                 aria-label="Instagram de ALAMAR HOUSE"
               >
                 <Instagram size={16} />
+              </a>
+              <a
+                href="https://tiktok.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-9 h-9 flex items-center justify-center rounded-full border border-white/20 hover:border-[#D4A574] hover:text-[#D4A574] transition-colors"
+                aria-label="TikTok de ALAMAR HOUSE"
+              >
+                <Music size={16} />
               </a>
             </div>
           </div>
