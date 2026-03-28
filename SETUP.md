@@ -255,7 +255,7 @@ Request:
 {
   "fullName": "John Doe",
   "email": "john@example.com",
-  "phone": "+57 300 000 0000",
+  "phone": "+57 301 567 0089",
   "checkIn": "2026-06-15",
   "checkOut": "2026-06-18",
   "nights": 3,
@@ -360,7 +360,7 @@ Configure webhook URL in Wompi dashboard.
 
 For issues or questions:
 - Email: hola@alamarhouse.co
-- WhatsApp: +57 300 000 0000
+- WhatsApp: +57 301 567 0089
 - Website: [alamarhouse.co](https://alamarhouse.co)
 
 ---

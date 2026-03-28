@@ -266,7 +266,7 @@ export default function ReservationForm({ onReservationChange, onSubmitSuccess }
             name="phone"
             type="tel"
             autoComplete="tel"
-            placeholder="+57 300 000 0000"
+            placeholder="+57 301 567 0089"
             value={formData.phone}
             onChange={handleChange}
             className={inputClass('phone')}
