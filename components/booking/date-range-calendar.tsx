@@ -22,10 +22,16 @@ export function DateRangeCalendar({
 }: DateRangeCalendarProps) {
   const [currentMonth, setCurrentMonth] = useState(() => new Date())
   const [todayStr, setTodayStr] = useState<string>('')
+  const [mounted, setMounted] = useState(false)
 
   // Set today's date only on client to avoid hydration mismatch
   useEffect(() => {
-    setTodayStr(new Date().toISOString().split('T')[0])
+    const now = new Date()
+    const year = now.getFullYear()
+    const month = String(now.getMonth() + 1).padStart(2, '0')
+    const day = String(now.getDate()).padStart(2, '0')
+    setTodayStr(`${year}-${month}-${day}`)
+    setMounted(true)
   }, [])
 
   const getDaysInMonth = (date: Date) => {
@@ -36,16 +42,33 @@ export function DateRangeCalendar({
     return new Date(date.getFullYear(), date.getMonth(), 1).getDay()
   }
 
-  const formatDateString = (date: Date) => {
-    return date.toISOString().split('T')[0]
+  // Format date to YYYY-MM-DD without timezone conversion
+  const formatDateString = (year: number, month: number, day: number): string => {
+    const mm = String(month + 1).padStart(2, '0')
+    const dd = String(day).padStart(2, '0')
+    return `${year}-${mm}-${dd}`
+  }
+
+  // Parse YYYY-MM-DD string to display format without timezone issues
+  const formatDisplayDate = (dateStr: string): string => {
+    const [year, month, day] = dateStr.split('-').map(Number)
+    const date = new Date(year, month - 1, day) // month is 0-indexed
+    return date.toLocaleDateString('es-CO', { weekday: 'short', day: 'numeric', month: 'short' })
+  }
+
+  // Calculate nights between two YYYY-MM-DD strings
+  const calculateNights = (start: string, end: string): number => {
+    const [y1, m1, d1] = start.split('-').map(Number)
+    const [y2, m2, d2] = end.split('-').map(Number)
+    const startDate = new Date(y1, m1 - 1, d1)
+    const endDate = new Date(y2, m2 - 1, d2)
+    return Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24))
   }
 
   const isDateInRange = (dateStr: string): boolean => {
     if (!checkIn || !checkOut) return false
-    const date = new Date(dateStr)
-    const start = new Date(checkIn)
-    const end = new Date(checkOut)
-    return date >= start && date <= end
+    // Compare strings directly (YYYY-MM-DD format is lexicographically sortable)
+    return dateStr >= checkIn && dateStr <= checkOut
   }
 
   const isDateBlocked = (dateStr: string): boolean => {
@@ -58,7 +81,7 @@ export function DateRangeCalendar({
   }
 
   const handleDateClick = (day: number) => {
-    const dateStr = formatDateString(new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day))
+    const dateStr = formatDateString(currentMonth.getFullYear(), currentMonth.getMonth(), day)
 
     if (isDateDisabled(dateStr) || isDateBlocked(dateStr)) return
 
@@ -66,10 +89,8 @@ export function DateRangeCalendar({
       onCheckInChange(dateStr)
       onCheckOutChange('')
     } else if (checkIn && !checkOut) {
-      const checkInDate = new Date(checkIn)
-      const selectedDate = new Date(dateStr)
-
-      if (selectedDate < checkInDate) {
+      // Compare strings directly - YYYY-MM-DD format is sortable
+      if (dateStr < checkIn) {
         onCheckInChange(dateStr)
       } else {
         onCheckOutChange(dateStr)
@@ -144,9 +165,10 @@ export function DateRangeCalendar({
               return <div key={`empty-${idx}`} className="h-11" />
             }
 
-            const dateStr = formatDateString(new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day))
+            const dateStr = formatDateString(currentMonth.getFullYear(), currentMonth.getMonth(), day)
             const isBlocked = isDateBlocked(dateStr)
-            const isDisabled = isDateDisabled(dateStr)
+            // Only check disabled after mounted to avoid hydration mismatch
+            const isDisabled = mounted ? isDateDisabled(dateStr) : false
             const isSelected = isDateInRange(dateStr)
             const isCheckIn = checkIn === dateStr
             const isCheckOut = checkOut === dateStr
@@ -193,20 +215,20 @@ export function DateRangeCalendar({
             <div className="flex flex-col">
               <span className="font-sans text-xs text-[#888880] uppercase tracking-wide">Llegada</span>
               <span className="font-sans font-semibold text-[#1B4D5C]">
-                {checkIn ? new Date(checkIn).toLocaleDateString('es-CO', { weekday: 'short', day: 'numeric', month: 'short' }) : '---'}
+                {checkIn ? formatDisplayDate(checkIn) : '---'}
               </span>
             </div>
             <div className="text-[#D4A574] font-bold text-lg">→</div>
             <div className="flex flex-col text-right">
               <span className="font-sans text-xs text-[#888880] uppercase tracking-wide">Salida</span>
               <span className="font-sans font-semibold text-[#1B4D5C]">
-                {checkOut ? new Date(checkOut).toLocaleDateString('es-CO', { weekday: 'short', day: 'numeric', month: 'short' }) : '---'}
+                {checkOut ? formatDisplayDate(checkOut) : '---'}
               </span>
             </div>
           </div>
           {checkIn && checkOut && (
             <p className="mt-2 text-center font-sans text-sm text-[#6B9C85] font-medium">
-              {Math.ceil((new Date(checkOut).getTime() - new Date(checkIn).getTime()) / (1000 * 60 * 60 * 24))} noches
+              {calculateNights(checkIn, checkOut)} noches
             </p>
           )}
         </div>
