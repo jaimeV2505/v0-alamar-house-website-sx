@@ -45,8 +45,15 @@ const rules = [
 
 export default function RulesSection() {
   return (
-    <section className="bg-[#F5F0E8] py-20 px-6 md:px-12 lg:px-20">
-      <div className="max-w-4xl mx-auto">
+    <section className="relative bg-[#F5F0E8] py-20 px-6 md:px-12 lg:px-20 overflow-hidden">
+      {/* Watermark background */}
+      <div
+        className="pointer-events-none absolute inset-0 bg-center bg-no-repeat bg-cover opacity-[0.06]"
+        style={{ backgroundImage: "url('/images/watermark-palms.jpg')" }}
+        aria-hidden="true"
+      />
+
+      <div className="relative max-w-4xl mx-auto">
         <div className="flex flex-col md:flex-row md:items-start gap-12">
           {/* Header */}
           <div className="md:w-1/3 shrink-0">
@@ -59,7 +66,10 @@ export default function RulesSection() {
             <h2 className="font-serif text-3xl text-[#2C2C2C] font-bold text-balance leading-snug">
               Reglas de la casa
             </h2>
-            <p className="mt-4 font-sans text-sm text-[#666666] leading-relaxed">
+            <p className="mt-2 font-sans text-sm text-[#D4A574] font-medium italic">
+              A 30 metros del Caribe colombiano
+            </p>
+            <p className="mt-3 font-sans text-sm text-[#666666] leading-relaxed">
               Para garantizar la mejor experiencia de todos nuestros huéspedes, te pedimos respetar estas normas básicas de convivencia.
             </p>
           </div>
