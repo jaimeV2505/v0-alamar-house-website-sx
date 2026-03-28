@@ -20,18 +20,18 @@ export function DateRangeCalendar({
   unavailableDates,
   isLoading = false,
 }: DateRangeCalendarProps) {
-  // Initialize with a fixed past date to avoid hydration mismatch
-  // Then update to actual today on client
   const [currentMonth, setCurrentMonth] = useState(() => new Date())
-  const [todayStr, setTodayStr] = useState<string>('2020-01-01')
+  const [todayStr, setTodayStr] = useState<string>('')
+  const [mounted, setMounted] = useState(false)
 
-  // Update to actual today on client mount
+  // Set today's date on client mount to avoid hydration mismatch
   useEffect(() => {
     const now = new Date()
     const year = now.getFullYear()
     const month = String(now.getMonth() + 1).padStart(2, '0')
     const day = String(now.getDate()).padStart(2, '0')
     setTodayStr(`${year}-${month}-${day}`)
+    setMounted(true)
   }, [])
 
   const getDaysInMonth = (date: Date) => {
@@ -158,54 +158,67 @@ export function DateRangeCalendar({
           ))}
         </div>
 
-        {/* Days */}
+        {/* Days - only render after mounted to avoid hydration mismatch */}
         <div className="grid grid-cols-7 gap-2">
-          {days.map((day, idx) => {
-            if (day === null) {
-              return <div key={`empty-${idx}`} className="h-11" />
-            }
+          {!mounted ? (
+            // Skeleton loading state - same on server and client
+            <>
+              {days.map((day, idx) => (
+                <div
+                  key={`skeleton-${idx}`}
+                  className={`h-11 rounded-lg border border-[#E8E3D8] ${day === null ? '' : 'bg-[#F5F0E8] animate-pulse'}`}
+                />
+              ))}
+            </>
+          ) : (
+            // Interactive calendar - only on client after mount
+            days.map((day, idx) => {
+              if (day === null) {
+                return <div key={`empty-${idx}`} className="h-11" />
+              }
 
-            const dateStr = formatDateString(currentMonth.getFullYear(), currentMonth.getMonth(), day)
-            const isBlocked = isDateBlocked(dateStr)
-            const isDisabled = isDateDisabled(dateStr)
-            const isSelected = isDateInRange(dateStr)
-            const isCheckIn = checkIn === dateStr
-            const isCheckOut = checkOut === dateStr
-            const isUnavailable = isBlocked || isDisabled
+              const dateStr = formatDateString(currentMonth.getFullYear(), currentMonth.getMonth(), day)
+              const isBlocked = isDateBlocked(dateStr)
+              const isDisabled = isDateDisabled(dateStr)
+              const isSelected = isDateInRange(dateStr)
+              const isCheckIn = checkIn === dateStr
+              const isCheckOut = checkOut === dateStr
+              const isUnavailable = isBlocked || isDisabled
 
-            let bgColor = 'bg-white hover:bg-[#F5F0E8]'
-            let textColor = 'text-[#2C2C2C]'
-            let cursor = 'cursor-pointer'
-            let borderColor = 'border-[#E8E3D8]'
-            let extraStyles = ''
+              let bgColor = 'bg-white hover:bg-[#F5F0E8]'
+              let textColor = 'text-[#2C2C2C]'
+              let cursor = 'cursor-pointer'
+              let borderColor = 'border-[#E8E3D8]'
+              let extraStyles = ''
 
-            if (isUnavailable) {
-              bgColor = 'bg-[#D97373]/10'
-              textColor = 'text-[#D97373] line-through'
-              cursor = 'cursor-not-allowed'
-              borderColor = 'border-[#D97373]/30'
-            } else if (isCheckIn || isCheckOut) {
-              bgColor = 'bg-[#1B4D5C]'
-              textColor = 'text-white'
-              extraStyles = 'ring-2 ring-[#1B4D5C]/30 ring-offset-1'
-            } else if (isSelected) {
-              bgColor = 'bg-[#1B4D5C]/10'
-              borderColor = 'border-[#1B4D5C]'
-              textColor = 'text-[#1B4D5C] font-semibold'
-            }
+              if (isUnavailable) {
+                bgColor = 'bg-[#D97373]/10'
+                textColor = 'text-[#D97373] line-through'
+                cursor = 'cursor-not-allowed'
+                borderColor = 'border-[#D97373]/30'
+              } else if (isCheckIn || isCheckOut) {
+                bgColor = 'bg-[#1B4D5C]'
+                textColor = 'text-white'
+                extraStyles = 'ring-2 ring-[#1B4D5C]/30 ring-offset-1'
+              } else if (isSelected) {
+                bgColor = 'bg-[#1B4D5C]/10'
+                borderColor = 'border-[#1B4D5C]'
+                textColor = 'text-[#1B4D5C] font-semibold'
+              }
 
-            return (
-              <button
-                key={`day-${day}`}
-                type="button"
-                onClick={() => handleDateClick(day)}
-                disabled={isUnavailable}
-                className={`h-11 rounded-lg border font-sans text-sm font-medium transition-all duration-200 ${bgColor} ${textColor} ${cursor} ${borderColor} ${extraStyles}`}
-              >
-                {day}
-              </button>
-            )
-          })}
+              return (
+                <button
+                  key={`day-${day}`}
+                  type="button"
+                  onClick={() => handleDateClick(day)}
+                  disabled={isUnavailable}
+                  className={`h-11 rounded-lg border font-sans text-sm font-medium transition-all duration-200 ${bgColor} ${textColor} ${cursor} ${borderColor} ${extraStyles}`}
+                >
+                  {day}
+                </button>
+              )
+            })
+          )}
         </div>
       </div>
 

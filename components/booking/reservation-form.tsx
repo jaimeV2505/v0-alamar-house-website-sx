@@ -114,8 +114,32 @@ export default function ReservationForm({ onReservationChange }: Props) {
       return
     }
 
-    // Check for unavailable dates
-    if (unavailableDates.size > 0) {
+    // Check if selected dates overlap with unavailable dates
+    const hasUnavailableOverlap = () => {
+      if (unavailableDates.size === 0) return false
+      
+      // Generate all dates in the selected range
+      const [startYear, startMonth, startDay] = formData.checkIn.split('-').map(Number)
+      const [endYear, endMonth, endDay] = formData.checkOut.split('-').map(Number)
+      const current = new Date(startYear, startMonth - 1, startDay)
+      const end = new Date(endYear, endMonth - 1, endDay)
+      
+      // Check each date in range (excluding checkout day - guest leaves that day)
+      while (current < end) {
+        const y = current.getFullYear()
+        const m = String(current.getMonth() + 1).padStart(2, '0')
+        const d = String(current.getDate()).padStart(2, '0')
+        const dateStr = `${y}-${m}-${d}`
+        
+        if (unavailableDates.has(dateStr)) {
+          return true
+        }
+        current.setDate(current.getDate() + 1)
+      }
+      return false
+    }
+
+    if (hasUnavailableOverlap()) {
       setSubmitError('Una o más fechas seleccionadas no están disponibles. Por favor, elige otras fechas.')
       return
     }
