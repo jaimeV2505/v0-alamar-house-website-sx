@@ -94,3 +94,34 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
   }
 }
+
+// DELETE - Delete a calendar block by ID
+export async function DELETE(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url)
+    const blockId = searchParams.get('id')
+
+    if (!blockId) {
+      return NextResponse.json(
+        { error: 'ID del bloqueo requerido' },
+        { status: 400 }
+      )
+    }
+
+    const { error } = await supabase
+      .from('calendar_blocks')
+      .delete()
+      .eq('id', blockId)
+
+    if (error) {
+      return NextResponse.json(
+        { error: `Error al eliminar bloqueo: ${error.message}` },
+        { status: 500 }
+      )
+    }
+
+    return NextResponse.json({ success: true })
+  } catch {
+    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
+  }
+}

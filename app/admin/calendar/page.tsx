@@ -68,14 +68,19 @@ export default function AdminCalendarPage() {
 
     setDeleting(blockId)
     try {
-      const res = await fetch(`/api/admin/calendar/${blockId}`, {
+      const res = await fetch(`/api/admin/calendar?id=${blockId}`, {
         method: 'DELETE',
       })
 
-      if (!res.ok) throw new Error('Failed to delete')
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error || 'Failed to delete')
+      }
+      
+      // Remove from local state
       setBlocks(blocks.filter((b) => b.id !== blockId))
-    } catch {
-      alert('Error al eliminar bloqueo')
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Error al eliminar bloqueo')
     } finally {
       setDeleting(null)
     }

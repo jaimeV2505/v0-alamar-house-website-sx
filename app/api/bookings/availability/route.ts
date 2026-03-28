@@ -69,9 +69,22 @@ export async function GET(request: NextRequest) {
       })
     }
 
-    return NextResponse.json({
-      unavailable_dates: Array.from(unavailableDates).sort(),
+    // Debug log
+    console.log('[v0] Availability API:', {
+      blockedRanges: blockedRes.data?.length || 0,
+      confirmedBookings: bookingsRes.data?.length || 0,
+      totalUnavailableDates: unavailableDates.size,
     })
+
+    return NextResponse.json(
+      { unavailable_dates: Array.from(unavailableDates).sort() },
+      {
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate',
+          'Pragma': 'no-cache',
+        },
+      }
+    )
   } catch (error) {
     console.error('Availability API error:', error)
     return NextResponse.json(

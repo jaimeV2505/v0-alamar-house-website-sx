@@ -61,21 +61,23 @@ export default function ReservationForm({ onReservationChange, onSubmitSuccess }
   const [loadingAvailability, setLoadingAvailability] = useState(true)
   const [showCalendar, setShowCalendar] = useState(true)
 
-  // Fetch unavailable dates on mount
+  // Fetch unavailable dates on mount - with cache busting
   useEffect(() => {
     const fetchUnavailableDates = async () => {
       setLoadingAvailability(true)
       try {
-        // Fetch for next 6 months
+        // Fetch for next 12 months
         const startDate = new Date()
         const endDate = new Date()
-        endDate.setMonth(endDate.getMonth() + 6)
+        endDate.setMonth(endDate.getMonth() + 12)
         
         const res = await fetch(
-          `/api/bookings/availability?start_date=${startDate.toISOString().split('T')[0]}&end_date=${endDate.toISOString().split('T')[0]}`
+          `/api/bookings/availability?start_date=${startDate.toISOString().split('T')[0]}&end_date=${endDate.toISOString().split('T')[0]}&_t=${Date.now()}`,
+          { cache: 'no-store' }
         )
         if (res.ok) {
           const data = await res.json()
+          console.log('[v0] Unavailable dates loaded:', data.unavailable_dates?.length || 0)
           setUnavailableDates(new Set(data.unavailable_dates || []))
         }
       } catch {
