@@ -70,7 +70,7 @@ export default function Footer() {
               </div>
               <div className="flex items-center gap-3 text-sm text-white/70">
                 <Phone size={15} className="shrink-0 text-[#7BA696]" />
-                <a href="tel:+573000000000" className="hover:text-white transition-colors">
+                <a href="tel:+573015670089" className="hover:text-white transition-colors">
                   +57 301 567 0089
                 </a>
               </div>
@@ -96,7 +96,7 @@ export default function Footer() {
 
       {/* Floating WhatsApp Button */}
       <a
-        href="https://wa.me/573000000000?text=Hola,%20estoy%20interesado%20en%20reservar%20ALAMAR%20HOUSE"
+        href="https://wa.me/573015670089?text=Hola,%20estoy%20interesado%20en%20reservar%20ALAMAR%20HOUSE"
         target="_blank"
         rel="noopener noreferrer"
         className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-[#25D366] rounded-full flex items-center justify-center shadow-lg hover:scale-105 transition-transform"

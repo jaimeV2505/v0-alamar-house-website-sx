@@ -45,7 +45,7 @@ const STATES: Record<
     ctaLabel: 'Volver al inicio',
     ctaHref: '/',
     secondaryLabel: 'Contactar por WhatsApp',
-    secondaryHref: 'https://wa.me/573000000000',
+    secondaryHref: 'https://wa.me/573015670089',
   },
   DECLINED: {
     icon: <XCircle size={48} strokeWidth={1.5} />,
@@ -57,7 +57,7 @@ const STATES: Record<
     ctaLabel: 'Intentar de nuevo',
     ctaHref: '/reserva',
     secondaryLabel: 'Contactar soporte',
-    secondaryHref: 'https://wa.me/573000000000',
+    secondaryHref: 'https://wa.me/573015670089',
   },
   ERROR: {
     icon: <AlertTriangle size={48} strokeWidth={1.5} />,
@@ -69,7 +69,7 @@ const STATES: Record<
     ctaLabel: 'Intentar de nuevo',
     ctaHref: '/reserva',
     secondaryLabel: 'Contactar soporte',
-    secondaryHref: 'https://wa.me/573000000000',
+    secondaryHref: 'https://wa.me/573015670089',
   },
 }
 
@@ -137,7 +137,7 @@ export default function PaymentResult({ status, reference, transactionId }: Prop
         <p className="mt-6 font-sans text-xs text-[#888880] text-center leading-relaxed">
           ¿Tienes dudas? Escríbenos al{' '}
           <a
-            href="https://wa.me/573000000000"
+            href="https://wa.me/573015670089"
             target="_blank"
             rel="noopener noreferrer"
             className="text-[#1B4D5C] font-semibold hover:underline"
