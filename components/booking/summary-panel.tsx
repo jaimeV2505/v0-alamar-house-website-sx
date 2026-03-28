@@ -136,7 +136,7 @@ export default function SummaryPanel({ reservationData }: Props) {
           Contáctanos por WhatsApp y te asesoramos con tu reserva personalmente.
         </p>
         <a
-          href="https://wa.me/573000000000?text=Hola,%20necesito%20ayuda%20para%20reservar%20ALAMAR%20HOUSE"
+          href="https://wa.me/573015670089?text=Hola,%20necesito%20ayuda%20para%20reservar%20ALAMAR%20HOUSE"
           target="_blank"
           rel="noopener noreferrer"
           className="font-sans text-xs font-semibold text-[#1B4D5C] hover:underline mt-1"

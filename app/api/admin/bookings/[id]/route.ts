@@ -57,7 +57,47 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       )
     }
 
+    // If status changed to cancelled or rejected, remove associated calendar block
+    if (status === 'cancelled' || status === 'rejected') {
+      await supabase
+        .from('calendar_blocks')
+        .delete()
+        .eq('booking_request_id', bookingId)
+    }
+
     return NextResponse.json({ booking })
+  } catch {
+    return NextResponse.json(
+      { error: 'Error interno del servidor' },
+      { status: 500 }
+    )
+  }
+}
+
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const { id: bookingId } = await params
+
+    // First delete associated calendar blocks
+    await supabase
+      .from('calendar_blocks')
+      .delete()
+      .eq('booking_request_id', bookingId)
+
+    // Then delete the booking
+    const { error } = await supabase
+      .from('booking_requests')
+      .delete()
+      .eq('id', bookingId)
+
+    if (error) {
+      return NextResponse.json(
+        { error: 'Error al eliminar reserva' },
+        { status: 500 }
+      )
+    }
+
+    return NextResponse.json({ success: true })
   } catch {
     return NextResponse.json(
       { error: 'Error interno del servidor' },

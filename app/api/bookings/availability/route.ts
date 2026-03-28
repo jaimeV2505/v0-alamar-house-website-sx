@@ -69,9 +69,15 @@ export async function GET(request: NextRequest) {
       })
     }
 
-    return NextResponse.json({
-      unavailable_dates: Array.from(unavailableDates).sort(),
-    })
+    return NextResponse.json(
+      { unavailable_dates: Array.from(unavailableDates).sort() },
+      {
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate',
+          'Pragma': 'no-cache',
+        },
+      }
+    )
   } catch (error) {
     console.error('Availability API error:', error)
     return NextResponse.json(

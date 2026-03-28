@@ -61,21 +61,23 @@ export default function ReservationForm({ onReservationChange, onSubmitSuccess }
   const [loadingAvailability, setLoadingAvailability] = useState(true)
   const [showCalendar, setShowCalendar] = useState(true)
 
-  // Fetch unavailable dates on mount
+  // Fetch unavailable dates on mount - with cache busting
   useEffect(() => {
     const fetchUnavailableDates = async () => {
       setLoadingAvailability(true)
       try {
-        // Fetch for next 6 months
+        // Fetch for next 12 months
         const startDate = new Date()
         const endDate = new Date()
-        endDate.setMonth(endDate.getMonth() + 6)
-        
+        endDate.setMonth(endDate.getMonth() + 12)
+
         const res = await fetch(
-          `/api/bookings/availability?start_date=${startDate.toISOString().split('T')[0]}&end_date=${endDate.toISOString().split('T')[0]}`
+          `/api/bookings/availability?start_date=${startDate.toISOString().split('T')[0]}&end_date=${endDate.toISOString().split('T')[0]}&_t=${Date.now()}`,
+          { cache: 'no-store' }
         )
         if (res.ok) {
           const data = await res.json()
+          console.log('[v0] Unavailable dates loaded:', data.unavailable_dates?.length || 0)
           setUnavailableDates(new Set(data.unavailable_dates || []))
         }
       } catch {
@@ -118,20 +120,20 @@ export default function ReservationForm({ onReservationChange, onSubmitSuccess }
     // Check if selected dates overlap with unavailable dates
     const hasUnavailableOverlap = () => {
       if (unavailableDates.size === 0) return false
-      
+
       // Generate all dates in the selected range
       const [startYear, startMonth, startDay] = formData.checkIn.split('-').map(Number)
       const [endYear, endMonth, endDay] = formData.checkOut.split('-').map(Number)
       const current = new Date(startYear, startMonth - 1, startDay)
       const end = new Date(endYear, endMonth - 1, endDay)
-      
+
       // Check each date in range (excluding checkout day - guest leaves that day)
       while (current < end) {
         const y = current.getFullYear()
         const m = String(current.getMonth() + 1).padStart(2, '0')
         const d = String(current.getDate()).padStart(2, '0')
         const dateStr = `${y}-${m}-${d}`
-        
+
         if (unavailableDates.has(dateStr)) {
           return true
         }
@@ -185,7 +187,7 @@ export default function ReservationForm({ onReservationChange, onSubmitSuccess }
       const checkInDate = formatDateForDisplay(formData.checkIn)
       const checkOutDate = formatDateForDisplay(formData.checkOut)
       const whatsappMessage = `Hola, estoy interesado en reservar ALAMAR BEACH HOUSE del ${checkInDate} al ${checkOutDate} para ${formData.guests} ${formData.guests === '1' ? 'persona' : 'personas'}. Mi nombre es ${formData.fullName} y mi correo es ${formData.email}. ${formData.message ? `Notas: ${formData.message}` : ''}`
-      const whatsappUrl = `https://wa.me/573000000000?text=${encodeURIComponent(whatsappMessage)}`
+      const whatsappUrl = `https://wa.me/573015670089?text=${encodeURIComponent(whatsappMessage)}`
 
       // Reset form
       setFormData({
@@ -197,7 +199,7 @@ export default function ReservationForm({ onReservationChange, onSubmitSuccess }
         guests: '',
         message: '',
       })
-      
+
       // Notify parent to clear summary
       onSubmitSuccess?.()
 
@@ -264,7 +266,7 @@ export default function ReservationForm({ onReservationChange, onSubmitSuccess }
             name="phone"
             type="tel"
             autoComplete="tel"
-            placeholder="+57 300 000 0000"
+            placeholder="+57 301 567 0089"
             value={formData.phone}
             onChange={handleChange}
             className={inputClass('phone')}

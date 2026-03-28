@@ -305,7 +305,7 @@ vercel
 - Admin: No dashboard yet (skeleton prepared)
 - Analytics: Google Analytics integration available
 - Languages: Spanish only (i18n structure ready)
-- Phone Number: Placeholder (+57 300 000 0000) - update for production
+- Phone Number: Placeholder (+57 301 567 0089) - update for production
 
 ---
 
