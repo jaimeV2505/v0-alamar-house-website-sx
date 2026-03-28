@@ -60,9 +60,7 @@ export default function ReservationForm({ onReservationChange }: Props) {
   const [loadingAvailability, setLoadingAvailability] = useState(true)
   const [showCalendar, setShowCalendar] = useState(true)
 
-  const today = new Date().toISOString().split('T')[0]
-
-  // Fetch unavailable dates on mount and when month changes
+  // Fetch unavailable dates on mount
   useEffect(() => {
     const fetchUnavailableDates = async () => {
       setLoadingAvailability(true)
@@ -184,10 +182,6 @@ export default function ReservationForm({ onReservationChange }: Props) {
   const inputClass = (field: keyof FormErrors) =>
     `${inputBase} ${errors[field] ? 'border-[#D97373] focus:border-[#D97373]' : 'border-[#E8E3D8] focus:border-[#1B4D5C]'}`
 
-  const isDateUnavailable = (dateString: string): boolean => {
-    return unavailableDates.has(dateString)
-  }
-
   return (
     <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-6">
       {/* Name */}
@@ -256,7 +250,7 @@ export default function ReservationForm({ onReservationChange }: Props) {
             className="flex items-center gap-2 font-sans text-xs text-[#1B4D5C] hover:text-[#2A6B7E] transition-colors"
           >
             <Calendar size={14} />
-            {showCalendar ? 'Ocultar' : 'Ver'} calendario
+            {showCalendar ? 'Ocultar calendario' : 'Mostrar calendario'}
           </button>
         </div>
 
@@ -266,10 +260,12 @@ export default function ReservationForm({ onReservationChange }: Props) {
             checkOut={formData.checkOut}
             onCheckInChange={(date) => {
               setFormData((prev) => ({ ...prev, checkIn: date }))
+              setErrors((prev) => ({ ...prev, checkIn: undefined }))
               onReservationChange?.({ checkIn: date, checkOut: formData.checkOut, guests: formData.guests })
             }}
             onCheckOutChange={(date) => {
               setFormData((prev) => ({ ...prev, checkOut: date }))
+              setErrors((prev) => ({ ...prev, checkOut: undefined }))
               onReservationChange?.({ checkIn: formData.checkIn, checkOut: date, guests: formData.guests })
             }}
             unavailableDates={unavailableDates}
@@ -277,41 +273,13 @@ export default function ReservationForm({ onReservationChange }: Props) {
           />
         )}
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="checkIn" className="font-sans text-xs font-semibold text-[#2C2C2C] uppercase tracking-wide">
-              Fecha de llegada <span className="text-[#D97373]">*</span>
-            </label>
-            <input
-              id="checkIn"
-              name="checkIn"
-              type="date"
-              min={today}
-              value={formData.checkIn}
-              onChange={handleChange}
-              className={inputClass('checkIn')}
-            />
+        {/* Show validation errors for dates */}
+        {(errors.checkIn || errors.checkOut) && (
+          <div className="flex gap-4">
             {errors.checkIn && <p className="font-sans text-xs text-[#D97373]">{errors.checkIn}</p>}
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="checkOut" className="font-sans text-xs font-semibold text-[#2C2C2C] uppercase tracking-wide">
-              Fecha de salida <span className="text-[#D97373]">*</span>
-            </label>
-            <input
-              id="checkOut"
-              name="checkOut"
-              type="date"
-              min={formData.checkIn || today}
-              value={formData.checkOut}
-              onChange={handleChange}
-              className={inputClass('checkOut')}
-            />
             {errors.checkOut && <p className="font-sans text-xs text-[#D97373]">{errors.checkOut}</p>}
-            {loadingAvailability && (
-              <p className="font-sans text-xs text-[#888880]">Verificando disponibilidad...</p>
-            )}
           </div>
-        </div>
+        )}
       </div>
 
       {/* Guests */}

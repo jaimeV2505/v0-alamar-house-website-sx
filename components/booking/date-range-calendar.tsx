@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { ChevronLeft, ChevronRight, CalendarDays } from 'lucide-react'
 
 interface DateRangeCalendarProps {
@@ -9,7 +9,6 @@ interface DateRangeCalendarProps {
   onCheckInChange: (date: string) => void
   onCheckOutChange: (date: string) => void
   unavailableDates: Set<string>
-  minDate?: string
   isLoading?: boolean
 }
 
@@ -19,13 +18,15 @@ export function DateRangeCalendar({
   onCheckInChange,
   onCheckOutChange,
   unavailableDates,
-  minDate = new Date().toISOString().split('T')[0],
   isLoading = false,
 }: DateRangeCalendarProps) {
-  const [currentMonth, setCurrentMonth] = useState(new Date())
+  const [currentMonth, setCurrentMonth] = useState(() => new Date())
+  const [todayStr, setTodayStr] = useState<string>('')
 
-  const today = new Date()
-  const minDateObj = new Date(minDate)
+  // Set today's date only on client to avoid hydration mismatch
+  useEffect(() => {
+    setTodayStr(new Date().toISOString().split('T')[0])
+  }, [])
 
   const getDaysInMonth = (date: Date) => {
     return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate()
@@ -52,8 +53,8 @@ export function DateRangeCalendar({
   }
 
   const isDateDisabled = (dateStr: string): boolean => {
-    const date = new Date(dateStr)
-    return date < minDateObj
+    if (!todayStr) return false // Not yet mounted
+    return dateStr < todayStr
   }
 
   const handleDateClick = (day: number) => {
