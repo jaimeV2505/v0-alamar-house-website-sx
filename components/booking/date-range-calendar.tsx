@@ -158,24 +158,29 @@ export function DateRangeCalendar({
           ))}
         </div>
 
-        {/* Days - only render after mounted to avoid hydration mismatch */}
-        <div className="grid grid-cols-7 gap-2">
-          {!mounted ? (
-            // Skeleton loading state - same on server and client
-            <>
-              {days.map((day, idx) => (
+        {/* Days grid - suppressHydrationWarning because we intentionally show skeleton then interactive */}
+        <div className="grid grid-cols-7 gap-2" suppressHydrationWarning>
+          {days.map((day, idx) => {
+            // Empty cells for padding
+            if (day === null) {
+              return <div key={`empty-${idx}`} className="h-11" />
+            }
+
+            // Before mount, show loading skeleton
+            if (!mounted) {
+              return (
                 <div
-                  key={`skeleton-${idx}`}
-                  className={`h-11 rounded-lg border border-[#E8E3D8] ${day === null ? '' : 'bg-[#F5F0E8] animate-pulse'}`}
-                />
-              ))}
-            </>
-          ) : (
-            // Interactive calendar - only on client after mount
-            days.map((day, idx) => {
-              if (day === null) {
-                return <div key={`empty-${idx}`} className="h-11" />
-              }
+                  key={`skeleton-${day}`}
+                  className="h-11 rounded-lg border border-[#E8E3D8] bg-[#F5F0E8] animate-pulse flex items-center justify-center font-sans text-sm text-[#888880]"
+                >
+                  {day}
+                </div>
+              )
+            }
+
+            // After mount, show interactive buttons
+            const dateStr = formatDateString(currentMonth.getFullYear(), currentMonth.getMonth(), day)
+
 
               const dateStr = formatDateString(currentMonth.getFullYear(), currentMonth.getMonth(), day)
               const isBlocked = isDateBlocked(dateStr)
@@ -206,19 +211,18 @@ export function DateRangeCalendar({
                 textColor = 'text-[#1B4D5C] font-semibold'
               }
 
-              return (
-                <button
-                  key={`day-${day}`}
-                  type="button"
-                  onClick={() => handleDateClick(day)}
-                  disabled={isUnavailable}
-                  className={`h-11 rounded-lg border font-sans text-sm font-medium transition-all duration-200 ${bgColor} ${textColor} ${cursor} ${borderColor} ${extraStyles}`}
-                >
-                  {day}
-                </button>
-              )
-            })
-          )}
+            return (
+              <button
+                key={`day-${day}`}
+                type="button"
+                onClick={() => handleDateClick(day)}
+                disabled={isUnavailable}
+                className={`h-11 rounded-lg border font-sans text-sm font-medium transition-all duration-200 ${bgColor} ${textColor} ${cursor} ${borderColor} ${extraStyles}`}
+              >
+                {day}
+              </button>
+            )
+          })}
         </div>
       </div>
 

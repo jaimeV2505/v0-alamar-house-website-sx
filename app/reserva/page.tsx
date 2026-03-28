@@ -63,7 +63,10 @@ export default function ReservaPage() {
                 </p>
               </div>
               <div className="bg-white border border-[#E8E3D8] rounded-lg p-8">
-                <ReservationForm onReservationChange={setReservationData} />
+                <ReservationForm 
+                  onReservationChange={setReservationData} 
+                  onSubmitSuccess={() => setReservationData({ checkIn: '', checkOut: '', guests: '' })}
+                />
               </div>
             </div>
             <div>

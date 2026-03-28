@@ -40,9 +40,10 @@ function validate(data: FormData): FormErrors {
 
 interface Props {
   onReservationChange?: (data: { checkIn: string; checkOut: string; guests: string }) => void
+  onSubmitSuccess?: () => void
 }
 
-export default function ReservationForm({ onReservationChange }: Props) {
+export default function ReservationForm({ onReservationChange, onSubmitSuccess }: Props) {
   const [formData, setFormData] = useState<FormData>({
     fullName: '',
     email: '',
@@ -196,6 +197,9 @@ export default function ReservationForm({ onReservationChange }: Props) {
         guests: '',
         message: '',
       })
+      
+      // Notify parent to clear summary
+      onSubmitSuccess?.()
 
       // Optionally open WhatsApp
       setTimeout(() => {

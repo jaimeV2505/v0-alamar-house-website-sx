@@ -26,35 +26,39 @@ export function CalendarGrid({ blocks, onAddBlock, onDeleteBlock, isLoading }: C
     return new Date(date.getFullYear(), date.getMonth(), 1).getDay()
   }
 
-  const formatDateString = (date: Date) => {
-    return date.toISOString().split('T')[0]
+  // Format date to YYYY-MM-DD without timezone conversion
+  const formatDateString = (year: number, month: number, day: number): string => {
+    const mm = String(month + 1).padStart(2, '0')
+    const dd = String(day).padStart(2, '0')
+    return `${year}-${mm}-${dd}`
+  }
+
+  // Parse YYYY-MM-DD for display without timezone issues
+  const parseLocalDate = (dateStr: string): Date => {
+    const [year, month, day] = dateStr.split('-').map(Number)
+    return new Date(year, month - 1, day)
   }
 
   const isDateBlocked = (dateStr: string): CalendarBlock | null => {
     if (!blocks || !Array.isArray(blocks)) return null
     
+    // Compare strings directly - YYYY-MM-DD is lexicographically sortable
     return blocks.find((b) => {
       if (!b || !b.start_date || !b.end_date) return false
-      const date = new Date(dateStr)
-      const start = new Date(b.start_date)
-      const end = new Date(b.end_date)
-      return date >= start && date <= end
+      return dateStr >= b.start_date && dateStr <= b.end_date
     }) || null
   }
 
   const handleDateClick = (day: number) => {
-    const dateStr = formatDateString(new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day))
+    const dateStr = formatDateString(currentMonth.getFullYear(), currentMonth.getMonth(), day)
     
     if (!selectedRange) {
       setSelectedRange({ start: dateStr, end: dateStr })
     } else {
-      const startDate = new Date(selectedRange.start)
-      const endDate = new Date(selectedRange.end)
-      const clickedDate = new Date(dateStr)
-
-      if (clickedDate < startDate) {
+      // Compare strings directly - YYYY-MM-DD is sortable
+      if (dateStr < selectedRange.start) {
         setSelectedRange({ start: dateStr, end: selectedRange.end })
-      } else if (clickedDate > endDate) {
+      } else if (dateStr > selectedRange.end) {
         setSelectedRange({ start: selectedRange.start, end: dateStr })
       } else {
         setSelectedRange(null)
@@ -124,7 +128,7 @@ export function CalendarGrid({ blocks, onAddBlock, onDeleteBlock, isLoading }: C
               return <div key={`empty-${idx}`} className="h-12" />
             }
 
-            const dateStr = formatDateString(new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day))
+            const dateStr = formatDateString(currentMonth.getFullYear(), currentMonth.getMonth(), day)
             const blockedInfo = isDateBlocked(dateStr)
             const isSelected = selectedRange && dateStr >= selectedRange.start && dateStr <= selectedRange.end
             const reasonInfo = blockedInfo ? getBlockReasonInfo(blockedInfo.block_type) : null
@@ -165,11 +169,11 @@ export function CalendarGrid({ blocks, onAddBlock, onDeleteBlock, isLoading }: C
           <div className="flex items-start justify-between">
             <div>
               <p className="font-sans text-sm font-semibold text-[#2C2C2C]">
-                {new Date(selectedRange.start).toLocaleDateString('es-CO')} →{' '}
-                {new Date(selectedRange.end).toLocaleDateString('es-CO')}
+                {parseLocalDate(selectedRange.start).toLocaleDateString('es-CO')} →{' '}
+                {parseLocalDate(selectedRange.end).toLocaleDateString('es-CO')}
               </p>
               <p className="font-sans text-xs text-[#888880] mt-1">
-                {Math.ceil((new Date(selectedRange.end).getTime() - new Date(selectedRange.start).getTime()) / (1000 * 60 * 60 * 24)) + 1} día(s)
+                {Math.ceil((parseLocalDate(selectedRange.end).getTime() - parseLocalDate(selectedRange.start).getTime()) / (1000 * 60 * 60 * 24)) + 1} día(s)
               </p>
             </div>
             <button
