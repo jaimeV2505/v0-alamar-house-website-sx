@@ -182,7 +182,7 @@ function PaymentResultContent() {
             )}
 
             <a
-              href="https://wa.me/573000000000?text=Hola,%20tengo%20una%20pregunta%20sobre%20mi%20reserva"
+              href="https://wa.me/573015670089?text=Hola,%20tengo%20una%20pregunta%20sobre%20mi%20reserva"
               target="_blank"
               rel="noopener noreferrer"
             >
