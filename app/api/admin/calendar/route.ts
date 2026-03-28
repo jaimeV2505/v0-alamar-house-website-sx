@@ -100,31 +100,49 @@ export async function DELETE(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const blockId = searchParams.get('id')
-    
-    console.log('[v0] DELETE calendar block - blockId:', blockId)
 
     if (!blockId) {
-      console.log('[v0] DELETE failed: no block ID')
       return NextResponse.json(
         { error: 'ID del bloqueo requerido' },
         { status: 400 }
       )
     }
 
-    const { error } = await supabase
+    // First fetch the block to check if it has an associated booking_request
+    const { data: block, error: fetchError } = await supabase
+      .from('calendar_blocks')
+      .select('id, booking_request_id')
+      .eq('id', blockId)
+      .single()
+
+    if (fetchError || !block) {
+      return NextResponse.json(
+        { error: 'Bloqueo no encontrado' },
+        { status: 404 }
+      )
+    }
+
+    // Delete the calendar block
+    const { error: deleteError } = await supabase
       .from('calendar_blocks')
       .delete()
       .eq('id', blockId)
 
-    if (error) {
-      console.log('[v0] DELETE Supabase error:', error.message)
+    if (deleteError) {
       return NextResponse.json(
-        { error: `Error al eliminar bloqueo: ${error.message}` },
+        { error: `Error al eliminar bloqueo: ${deleteError.message}` },
         { status: 500 }
       )
     }
 
-    console.log('[v0] DELETE successful for block:', blockId)
+    // If block had an associated booking_request, cancel it too
+    if (block.booking_request_id) {
+      await supabase
+        .from('booking_requests')
+        .update({ status: 'cancelled', updated_at: new Date().toISOString() })
+        .eq('id', block.booking_request_id)
+    }
+
     return NextResponse.json({ success: true })
   } catch (err) {
     console.log('[v0] DELETE exception:', err)

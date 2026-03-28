@@ -69,13 +69,6 @@ export async function GET(request: NextRequest) {
       })
     }
 
-    // Debug log
-    console.log('[v0] Availability API:', {
-      blockedRanges: blockedRes.data?.length || 0,
-      confirmedBookings: bookingsRes.data?.length || 0,
-      totalUnavailableDates: unavailableDates.size,
-    })
-
     return NextResponse.json(
       { unavailable_dates: Array.from(unavailableDates).sort() },
       {
