@@ -39,7 +39,7 @@ export default function FinalCtaSection() {
             Reservar ahora
           </Link>
           <a
-            href="https://wa.me/573000000000?text=Hola,%20quisiera%20consultar%20disponibilidad%20en%20ALAMAR%20HOUSE"
+            href="https://wa.me/573015670089?text=Hola,%20quisiera%20consultar%20disponibilidad%20en%20ALAMAR%20HOUSE"
             target="_blank"
             rel="noopener noreferrer"
             className="font-sans text-sm text-white/80 border border-white/30 px-8 py-4 rounded-sm hover:border-white hover:text-white transition-colors"
