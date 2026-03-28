@@ -40,9 +40,10 @@ function validate(data: FormData): FormErrors {
 
 interface Props {
   onReservationChange?: (data: { checkIn: string; checkOut: string; guests: string }) => void
+  onSubmitSuccess?: () => void
 }
 
-export default function ReservationForm({ onReservationChange }: Props) {
+export default function ReservationForm({ onReservationChange, onSubmitSuccess }: Props) {
   const [formData, setFormData] = useState<FormData>({
     fullName: '',
     email: '',
@@ -114,8 +115,32 @@ export default function ReservationForm({ onReservationChange }: Props) {
       return
     }
 
-    // Check for unavailable dates
-    if (unavailableDates.size > 0) {
+    // Check if selected dates overlap with unavailable dates
+    const hasUnavailableOverlap = () => {
+      if (unavailableDates.size === 0) return false
+      
+      // Generate all dates in the selected range
+      const [startYear, startMonth, startDay] = formData.checkIn.split('-').map(Number)
+      const [endYear, endMonth, endDay] = formData.checkOut.split('-').map(Number)
+      const current = new Date(startYear, startMonth - 1, startDay)
+      const end = new Date(endYear, endMonth - 1, endDay)
+      
+      // Check each date in range (excluding checkout day - guest leaves that day)
+      while (current < end) {
+        const y = current.getFullYear()
+        const m = String(current.getMonth() + 1).padStart(2, '0')
+        const d = String(current.getDate()).padStart(2, '0')
+        const dateStr = `${y}-${m}-${d}`
+        
+        if (unavailableDates.has(dateStr)) {
+          return true
+        }
+        current.setDate(current.getDate() + 1)
+      }
+      return false
+    }
+
+    if (hasUnavailableOverlap()) {
       setSubmitError('Una o más fechas seleccionadas no están disponibles. Por favor, elige otras fechas.')
       return
     }
@@ -149,9 +174,16 @@ export default function ReservationForm({ onReservationChange }: Props) {
         `¡Reserva recibida! Nos pondremos en contacto pronto a ${formData.email} para confirmar. Gracias.`
       )
 
+      // Helper to parse YYYY-MM-DD without timezone issues
+      const formatDateForDisplay = (dateStr: string) => {
+        const [year, month, day] = dateStr.split('-').map(Number)
+        const date = new Date(year, month - 1, day)
+        return date.toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' })
+      }
+
       // Generate WhatsApp message link
-      const checkInDate = new Date(formData.checkIn).toLocaleDateString('es-CO')
-      const checkOutDate = new Date(formData.checkOut).toLocaleDateString('es-CO')
+      const checkInDate = formatDateForDisplay(formData.checkIn)
+      const checkOutDate = formatDateForDisplay(formData.checkOut)
       const whatsappMessage = `Hola, estoy interesado en reservar ALAMAR BEACH HOUSE del ${checkInDate} al ${checkOutDate} para ${formData.guests} ${formData.guests === '1' ? 'persona' : 'personas'}. Mi nombre es ${formData.fullName} y mi correo es ${formData.email}. ${formData.message ? `Notas: ${formData.message}` : ''}`
       const whatsappUrl = `https://wa.me/573000000000?text=${encodeURIComponent(whatsappMessage)}`
 
@@ -165,6 +197,9 @@ export default function ReservationForm({ onReservationChange }: Props) {
         guests: '',
         message: '',
       })
+      
+      // Notify parent to clear summary
+      onSubmitSuccess?.()
 
       // Optionally open WhatsApp
       setTimeout(() => {

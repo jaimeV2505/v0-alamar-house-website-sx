@@ -82,23 +82,35 @@ export interface CalendarBlock {
   created_at: string
 }
 
+// Parse YYYY-MM-DD string to Date without timezone issues
+function parseLocalDate(dateStr: string): Date {
+  const [year, month, day] = dateStr.split('-').map(Number)
+  return new Date(year, month - 1, day) // month is 0-indexed
+}
+
+// Format Date to YYYY-MM-DD without timezone issues
+function formatLocalDate(date: Date): string {
+  const y = date.getFullYear()
+  const m = String(date.getMonth() + 1).padStart(2, '0')
+  const d = String(date.getDate()).padStart(2, '0')
+  return `${y}-${m}-${d}`
+}
+
 // Helper to check if a date falls within a block
 export function isDateInBlock(dateStr: string, block: CalendarBlock): boolean {
   if (!block.start_date || !block.end_date) return false
-  const date = new Date(dateStr)
-  const start = new Date(block.start_date)
-  const end = new Date(block.end_date)
-  return date >= start && date <= end
+  // Compare strings directly - YYYY-MM-DD format is lexicographically sortable
+  return dateStr >= block.start_date && dateStr <= block.end_date
 }
 
 // Helper to get all dates in a range
 export function getDatesInRange(startDate: string, endDate: string): string[] {
   const dates: string[] = []
-  const current = new Date(startDate)
-  const end = new Date(endDate)
+  const current = parseLocalDate(startDate)
+  const end = parseLocalDate(endDate)
   
   while (current <= end) {
-    dates.push(current.toISOString().split('T')[0])
+    dates.push(formatLocalDate(current))
     current.setDate(current.getDate() + 1)
   }
   
@@ -107,8 +119,8 @@ export function getDatesInRange(startDate: string, endDate: string): string[] {
 
 // Helper to format date range for display
 export function formatDateRange(startDate: string, endDate: string): string {
-  const start = new Date(startDate)
-  const end = new Date(endDate)
+  const start = parseLocalDate(startDate)
+  const end = parseLocalDate(endDate)
   const options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short' }
   
   if (startDate === endDate) {
@@ -120,10 +132,10 @@ export function formatDateRange(startDate: string, endDate: string): string {
   return `${startStr} - ${endStr}`
 }
 
-// Calculate number of nights
+// Calculate number of nights (days in the block)
 export function calculateNights(startDate: string, endDate: string): number {
-  const start = new Date(startDate)
-  const end = new Date(endDate)
+  const start = parseLocalDate(startDate)
+  const end = parseLocalDate(endDate)
   const diffTime = Math.abs(end.getTime() - start.getTime())
   return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1
 }

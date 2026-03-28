@@ -33,31 +33,39 @@ export async function GET(request: NextRequest) {
 
     const unavailableDates = new Set<string>()
 
+    // Helper function to generate dates between start and end (inclusive)
+    // Uses string manipulation to avoid timezone issues
+    const generateDateRange = (startStr: string, endStr: string, includeEnd = true) => {
+      const dates: string[] = []
+      const [startYear, startMonth, startDay] = startStr.split('-').map(Number)
+      const [endYear, endMonth, endDay] = endStr.split('-').map(Number)
+      
+      // Create dates in local time (not UTC)
+      const current = new Date(startYear, startMonth - 1, startDay)
+      const end = new Date(endYear, endMonth - 1, endDay)
+      
+      while (includeEnd ? current <= end : current < end) {
+        const y = current.getFullYear()
+        const m = String(current.getMonth() + 1).padStart(2, '0')
+        const d = String(current.getDate()).padStart(2, '0')
+        dates.push(`${y}-${m}-${d}`)
+        current.setDate(current.getDate() + 1)
+      }
+      return dates
+    }
+
     // Add blocked calendar date ranges
     if (blockedRes.data) {
       blockedRes.data.forEach((block) => {
         if (!block.start_date || !block.end_date) return
-        
-        const current = new Date(block.start_date)
-        const end = new Date(block.end_date)
-
-        while (current <= end) {
-          unavailableDates.add(current.toISOString().split('T')[0])
-          current.setDate(current.getDate() + 1)
-        }
+        generateDateRange(block.start_date, block.end_date, true).forEach(d => unavailableDates.add(d))
       })
     }
 
-    // Add booked date ranges
+    // Add booked date ranges (check-out day is available for new check-in)
     if (bookingsRes.data) {
       bookingsRes.data.forEach((booking) => {
-        const current = new Date(booking.check_in_date)
-        const end = new Date(booking.check_out_date)
-
-        while (current < end) {
-          unavailableDates.add(current.toISOString().split('T')[0])
-          current.setDate(current.getDate() + 1)
-        }
+        generateDateRange(booking.check_in_date, booking.check_out_date, false).forEach(d => unavailableDates.add(d))
       })
     }
 

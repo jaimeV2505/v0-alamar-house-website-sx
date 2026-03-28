@@ -24,7 +24,6 @@ export function DateRangeCalendar({
   const [todayStr, setTodayStr] = useState<string>('')
   const [mounted, setMounted] = useState(false)
 
-  // Set today's date only on client to avoid hydration mismatch
   useEffect(() => {
     const now = new Date()
     const year = now.getFullYear()
@@ -42,21 +41,18 @@ export function DateRangeCalendar({
     return new Date(date.getFullYear(), date.getMonth(), 1).getDay()
   }
 
-  // Format date to YYYY-MM-DD without timezone conversion
   const formatDateString = (year: number, month: number, day: number): string => {
     const mm = String(month + 1).padStart(2, '0')
     const dd = String(day).padStart(2, '0')
     return `${year}-${mm}-${dd}`
   }
 
-  // Parse YYYY-MM-DD string to display format without timezone issues
   const formatDisplayDate = (dateStr: string): string => {
     const [year, month, day] = dateStr.split('-').map(Number)
-    const date = new Date(year, month - 1, day) // month is 0-indexed
+    const date = new Date(year, month - 1, day)
     return date.toLocaleDateString('es-CO', { weekday: 'short', day: 'numeric', month: 'short' })
   }
 
-  // Calculate nights between two YYYY-MM-DD strings
   const calculateNights = (start: string, end: string): number => {
     const [y1, m1, d1] = start.split('-').map(Number)
     const [y2, m2, d2] = end.split('-').map(Number)
@@ -67,7 +63,6 @@ export function DateRangeCalendar({
 
   const isDateInRange = (dateStr: string): boolean => {
     if (!checkIn || !checkOut) return false
-    // Compare strings directly (YYYY-MM-DD format is lexicographically sortable)
     return dateStr >= checkIn && dateStr <= checkOut
   }
 
@@ -76,24 +71,22 @@ export function DateRangeCalendar({
   }
 
   const isDateDisabled = (dateStr: string): boolean => {
-    if (!todayStr) return false // Not yet mounted
+    if (!todayStr) return false
     return dateStr < todayStr
   }
 
   const handleDateClick = (day: number) => {
-    const dateStr = formatDateString(currentMonth.getFullYear(), currentMonth.getMonth(), day)
-
-    if (isDateDisabled(dateStr) || isDateBlocked(dateStr)) return
+    const clickedDate = formatDateString(currentMonth.getFullYear(), currentMonth.getMonth(), day)
+    if (isDateDisabled(clickedDate) || isDateBlocked(clickedDate)) return
 
     if (!checkIn || (checkIn && checkOut)) {
-      onCheckInChange(dateStr)
+      onCheckInChange(clickedDate)
       onCheckOutChange('')
     } else if (checkIn && !checkOut) {
-      // Compare strings directly - YYYY-MM-DD format is sortable
-      if (dateStr < checkIn) {
-        onCheckInChange(dateStr)
+      if (clickedDate < checkIn) {
+        onCheckInChange(clickedDate)
       } else {
-        onCheckOutChange(dateStr)
+        onCheckOutChange(clickedDate)
       }
     }
   }
@@ -105,7 +98,6 @@ export function DateRangeCalendar({
 
   return (
     <div className="w-full">
-      {/* Header */}
       <div className="flex items-center gap-2 mb-4">
         <CalendarDays className="w-5 h-5 text-[#1B4D5C]" />
         <h4 className="font-sans font-semibold text-[#2C2C2C]">Calendario de disponibilidad</h4>
@@ -114,7 +106,6 @@ export function DateRangeCalendar({
         )}
       </div>
 
-      {/* Calendar Legend */}
       <div className="mb-4 flex flex-wrap gap-4 text-xs bg-[#F5F0E8] rounded-lg p-3">
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 rounded-full bg-white border border-[#E8E3D8]" />
@@ -130,11 +121,10 @@ export function DateRangeCalendar({
         </div>
       </div>
 
-      {/* Calendar */}
       <div className="bg-white border border-[#E8E3D8] rounded-lg p-5 shadow-sm">
-        {/* Month Navigation */}
         <div className="flex items-center justify-between mb-6">
           <button
+            type="button"
             onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1))}
             className="p-2 bg-[#F5F0E8] hover:bg-[#E8E3D8] rounded-lg transition-colors"
           >
@@ -142,6 +132,7 @@ export function DateRangeCalendar({
           </button>
           <h3 className="font-serif text-lg font-bold text-[#2C2C2C] text-center flex-1 capitalize">{monthName}</h3>
           <button
+            type="button"
             onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1))}
             className="p-2 bg-[#F5F0E8] hover:bg-[#E8E3D8] rounded-lg transition-colors"
           >
@@ -149,57 +140,65 @@ export function DateRangeCalendar({
           </button>
         </div>
 
-        {/* Weekday headers */}
         <div className="grid grid-cols-7 gap-1 mb-3">
-          {['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa'].map((day) => (
-            <div key={day} className="h-8 flex items-center justify-center font-sans text-xs font-bold text-[#1B4D5C] uppercase">
-              {day}
+          {['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa'].map((dayName) => (
+            <div key={dayName} className="h-8 flex items-center justify-center font-sans text-xs font-bold text-[#1B4D5C] uppercase">
+              {dayName}
             </div>
           ))}
         </div>
 
-        {/* Days */}
         <div className="grid grid-cols-7 gap-2">
           {days.map((day, idx) => {
             if (day === null) {
               return <div key={`empty-${idx}`} className="h-11" />
             }
 
-            const dateStr = formatDateString(currentMonth.getFullYear(), currentMonth.getMonth(), day)
-            const isBlocked = isDateBlocked(dateStr)
-            // Only check disabled after mounted to avoid hydration mismatch
-            const isDisabled = mounted ? isDateDisabled(dateStr) : false
-            const isSelected = isDateInRange(dateStr)
-            const isCheckIn = checkIn === dateStr
-            const isCheckOut = checkOut === dateStr
+            if (!mounted) {
+              return (
+                <div
+                  key={`loading-${day}`}
+                  className="h-11 rounded-lg border border-[#E8E3D8] bg-[#F5F0E8] animate-pulse flex items-center justify-center font-sans text-sm text-[#888880]"
+                >
+                  {day}
+                </div>
+              )
+            }
 
-            let bgColor = 'bg-white hover:bg-[#F5F0E8]'
-            let textColor = 'text-[#2C2C2C]'
-            let cursor = 'cursor-pointer'
-            let borderColor = 'border-[#E8E3D8]'
-            let extraStyles = ''
+            const cellDate = formatDateString(currentMonth.getFullYear(), currentMonth.getMonth(), day)
+            const blocked = isDateBlocked(cellDate)
+            const disabled = isDateDisabled(cellDate)
+            const selected = isDateInRange(cellDate)
+            const isStart = checkIn === cellDate
+            const isEnd = checkOut === cellDate
+            const unavailable = blocked || disabled
 
-            if (isBlocked || isDisabled) {
-              bgColor = 'bg-[#D97373]/10'
-              textColor = 'text-[#D97373] line-through'
-              cursor = 'cursor-not-allowed'
-              borderColor = 'border-[#D97373]/30'
-            } else if (isCheckIn || isCheckOut) {
-              bgColor = 'bg-[#1B4D5C]'
-              textColor = 'text-white'
-              extraStyles = 'ring-2 ring-[#1B4D5C]/30 ring-offset-1'
-            } else if (isSelected) {
-              bgColor = 'bg-[#1B4D5C]/10'
-              borderColor = 'border-[#1B4D5C]'
-              textColor = 'text-[#1B4D5C] font-semibold'
+            let bg = 'bg-white hover:bg-[#F5F0E8]'
+            let text = 'text-[#2C2C2C]'
+            let border = 'border-[#E8E3D8]'
+            let extra = ''
+
+            if (unavailable) {
+              bg = 'bg-[#D97373]/10'
+              text = 'text-[#D97373] line-through'
+              border = 'border-[#D97373]/30'
+            } else if (isStart || isEnd) {
+              bg = 'bg-[#1B4D5C]'
+              text = 'text-white'
+              extra = 'ring-2 ring-[#1B4D5C]/30 ring-offset-1'
+            } else if (selected) {
+              bg = 'bg-[#1B4D5C]/10'
+              border = 'border-[#1B4D5C]'
+              text = 'text-[#1B4D5C] font-semibold'
             }
 
             return (
               <button
                 key={`day-${day}`}
+                type="button"
                 onClick={() => handleDateClick(day)}
-                disabled={isBlocked || isDisabled}
-                className={`h-11 rounded-lg border font-sans text-sm font-medium transition-all duration-200 ${bgColor} ${textColor} ${cursor} ${borderColor} ${extraStyles}`}
+                disabled={unavailable}
+                className={`h-11 rounded-lg border font-sans text-sm font-medium transition-all duration-200 ${bg} ${text} ${border} ${extra} ${unavailable ? 'cursor-not-allowed' : 'cursor-pointer'}`}
               >
                 {day}
               </button>
@@ -208,7 +207,6 @@ export function DateRangeCalendar({
         </div>
       </div>
 
-      {/* Selected Range Summary */}
       {(checkIn || checkOut) && (
         <div className="mt-4 bg-[#1B4D5C]/5 border border-[#1B4D5C]/20 rounded-lg p-4">
           <div className="flex items-center justify-between">
