@@ -64,22 +64,33 @@ export default function AdminCalendarPage() {
   }
 
   async function handleDeleteBlock(blockId: string) {
-    if (!confirm('¿Eliminar este bloqueo de fechas?')) return
+    console.log('[v0] handleDeleteBlock called with id:', blockId)
+    
+    if (!confirm('¿Eliminar este bloqueo de fechas?')) {
+      console.log('[v0] Delete cancelled by user')
+      return
+    }
 
     setDeleting(blockId)
     try {
+      console.log('[v0] Calling DELETE API for block:', blockId)
       const res = await fetch(`/api/admin/calendar?id=${blockId}`, {
         method: 'DELETE',
       })
 
+      console.log('[v0] DELETE response status:', res.status)
+      
       if (!res.ok) {
         const data = await res.json()
+        console.log('[v0] DELETE error:', data)
         throw new Error(data.error || 'Failed to delete')
       }
       
+      console.log('[v0] DELETE successful, updating local state')
       // Remove from local state
       setBlocks(blocks.filter((b) => b.id !== blockId))
     } catch (err) {
+      console.log('[v0] DELETE exception:', err)
       alert(err instanceof Error ? err.message : 'Error al eliminar bloqueo')
     } finally {
       setDeleting(null)

@@ -100,8 +100,11 @@ export async function DELETE(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const blockId = searchParams.get('id')
+    
+    console.log('[v0] DELETE calendar block - blockId:', blockId)
 
     if (!blockId) {
+      console.log('[v0] DELETE failed: no block ID')
       return NextResponse.json(
         { error: 'ID del bloqueo requerido' },
         { status: 400 }
@@ -114,14 +117,17 @@ export async function DELETE(request: NextRequest) {
       .eq('id', blockId)
 
     if (error) {
+      console.log('[v0] DELETE Supabase error:', error.message)
       return NextResponse.json(
         { error: `Error al eliminar bloqueo: ${error.message}` },
         { status: 500 }
       )
     }
 
+    console.log('[v0] DELETE successful for block:', blockId)
     return NextResponse.json({ success: true })
-  } catch {
+  } catch (err) {
+    console.log('[v0] DELETE exception:', err)
     return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
   }
 }
