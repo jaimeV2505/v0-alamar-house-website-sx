@@ -10,10 +10,16 @@ interface Props {
   reservationData?: ReservationData
 }
 
+// Parse YYYY-MM-DD string to Date without timezone issues
+function parseLocalDate(dateStr: string): Date {
+  const [year, month, day] = dateStr.split('-').map(Number)
+  return new Date(year, month - 1, day) // month is 0-indexed
+}
+
 function calculateNights(checkIn: string, checkOut: string): number {
   if (!checkIn || !checkOut) return 0
-  const start = new Date(checkIn)
-  const end = new Date(checkOut)
+  const start = parseLocalDate(checkIn)
+  const end = parseLocalDate(checkOut)
   const diffTime = Math.abs(end.getTime() - start.getTime())
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
   return diffDays
@@ -21,8 +27,8 @@ function calculateNights(checkIn: string, checkOut: string): number {
 
 function formatDateRange(checkIn: string, checkOut: string): string {
   if (!checkIn || !checkOut) return ''
-  const start = new Date(checkIn)
-  const end = new Date(checkOut)
+  const start = parseLocalDate(checkIn)
+  const end = parseLocalDate(checkOut)
   const options: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' }
   const startStr = start.toLocaleDateString('es-CO', options).replace('.', '')
   const endStr = end.toLocaleDateString('es-CO', options).replace('.', '')

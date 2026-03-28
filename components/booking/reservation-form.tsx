@@ -149,9 +149,16 @@ export default function ReservationForm({ onReservationChange }: Props) {
         `¡Reserva recibida! Nos pondremos en contacto pronto a ${formData.email} para confirmar. Gracias.`
       )
 
+      // Helper to parse YYYY-MM-DD without timezone issues
+      const formatDateForDisplay = (dateStr: string) => {
+        const [year, month, day] = dateStr.split('-').map(Number)
+        const date = new Date(year, month - 1, day)
+        return date.toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' })
+      }
+
       // Generate WhatsApp message link
-      const checkInDate = new Date(formData.checkIn).toLocaleDateString('es-CO')
-      const checkOutDate = new Date(formData.checkOut).toLocaleDateString('es-CO')
+      const checkInDate = formatDateForDisplay(formData.checkIn)
+      const checkOutDate = formatDateForDisplay(formData.checkOut)
       const whatsappMessage = `Hola, estoy interesado en reservar ALAMAR BEACH HOUSE del ${checkInDate} al ${checkOutDate} para ${formData.guests} ${formData.guests === '1' ? 'persona' : 'personas'}. Mi nombre es ${formData.fullName} y mi correo es ${formData.email}. ${formData.message ? `Notas: ${formData.message}` : ''}`
       const whatsappUrl = `https://wa.me/573000000000?text=${encodeURIComponent(whatsappMessage)}`
 
