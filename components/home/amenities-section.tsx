@@ -22,7 +22,7 @@ const amenities = [
   {
     icon: <Droplets size={22} />,
     title: 'Jacuzzi',
-    description: 'Disfruta de un exclusivo jacuzzi ubicado en la terraza mirador, ideal para relajarte bajo el cielo del Caribe y contemplar el entorno natural en un ambiente tranquilo y privado.',
+    description: 'Jacuzzi en la terraza mirador, perfecto para relajarte y disfrutar del ambiente caribeño.',
   },
   {
     icon: <Sun size={22} />,
