@@ -33,7 +33,7 @@ const rules = [
   },
   {
     icon: <Volume2 size={18} />,
-    text: 'Respeto por el descanso de vecinos después de las 11 PM',
+    text: 'Respeto y control de decibeles en todo momento',
     allowed: null,
   },
   {
@@ -82,13 +82,12 @@ export default function RulesSection() {
                 className="flex items-center gap-4 p-4 bg-white rounded-lg border border-[#E8E3D8]"
               >
                 <span
-                  className={`${
-                    rule.allowed === true
+                  className={`${rule.allowed === true
                       ? 'text-[#6B9C85]'
                       : rule.allowed === false
-                      ? 'text-[#D4A574]'
-                      : 'text-[#1B4D5C]'
-                  }`}
+                        ? 'text-[#D4A574]'
+                        : 'text-[#1B4D5C]'
+                    }`}
                 >
                   {rule.icon}
                 </span>

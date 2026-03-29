@@ -10,7 +10,7 @@ import {
 const faqs = [
   {
     q: '¿Cuántas personas puede alojar ALAMAR BEACH HOUSE?',
-    a: 'La casa tiene capacidad para hasta 12 personas. Cuenta con 4 habitaciones, sofás-camas adicionales y cunas disponibles para familias con bebés.',
+    a: 'La casa tiene capacidad para hasta 20 personas. Dispone de 4 habitaciones, sofás-camas y camas auxiliares que brindan mayor comodidad y flexibilidad para grupos y familias.',
   },
   {
     q: '¿Se permiten mascotas en la propiedad?',
@@ -18,7 +18,7 @@ const faqs = [
   },
   {
     q: '¿Puedo organizar eventos o fiestas?',
-    a: 'Sí, ALAMAR BEACH HOUSE está habilitada para eventos y celebraciones privadas. La terraza, el área de piscina y los espacios internos son perfectos para reuniones. Solo pedimos respetar el descanso de vecinos después de las 11 PM.',
+    a: 'Sí, ALAMAR BEACH HOUSE está habilitada para eventos y celebraciones privadas. La terraza, el área de piscina y los espacios internos son perfectos para reuniones. Solo pedimos mantener un control adecuado de los decibeles en todo momento.',
   },
   {
     q: '¿Qué está incluido en la tarifa?',
