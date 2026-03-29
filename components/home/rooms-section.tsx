@@ -54,7 +54,7 @@ export default function RoomsSection() {
             { icon: <BedDouble size={24} className="text-[#1B4D5C]" />, value: '4', label: 'Habitaciones' },
             { icon: <Bath size={24} className="text-[#1B4D5C]" />, value: '5', label: 'Baños' },
             { icon: <Users size={24} className="text-[#1B4D5C]" />, value: '20', label: 'Personas máx.' },
-            { icon: <BedSingle size={24} className="text-[#1B4D5C]" />, value: '8', label: 'Camas totales' },
+            { icon: <BedSingle size={24} className="text-[#1B4D5C]" />, value: '10', label: 'Camas totales' },
           ].map((stat, i) => (
             <div key={i} className="flex flex-col items-center gap-3 p-6 bg-[#F5F0E8] rounded-lg border border-[#E8E3D8] text-center">
               {stat.icon}
