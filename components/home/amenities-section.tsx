@@ -22,7 +22,7 @@ const amenities = [
   {
     icon: <Droplets size={22} />,
     title: 'Jacuzzi',
-    description: 'Jacuzzi privado en la habitación principal con hidromasaje bajo las estrellas del Caribe.',
+    description: 'Disfruta de un exclusivo jacuzzi ubicado en la terraza mirador, ideal para relajarte bajo el cielo del Caribe y contemplar el entorno natural en un ambiente tranquilo y privado.',
   },
   {
     icon: <Sun size={22} />,
@@ -57,7 +57,7 @@ const amenities = [
   {
     icon: <Sofa size={22} />,
     title: 'Sofás-camas',
-    description: 'Sofás-camas adicionales para ampliar la capacidad hasta 12 personas cómodamente.',
+    description: 'Sofás-camas adicionales para ampliar la capacidad hasta 20 personas cómodamente.',
   },
   {
     icon: <PawPrint size={22} />,
