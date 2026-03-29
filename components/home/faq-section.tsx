@@ -18,7 +18,7 @@ const faqs = [
   },
   {
     q: '¿Puedo organizar eventos o fiestas?',
-    a: 'Sí, ALAMAR BEACH HOUSE está habilitada para eventos y celebraciones privadas. La terraza, el área de piscina y los espacios internos son perfectos para reuniones. Solo pedimos respetar el descanso de vecinos después de las 11 PM.',
+    a: 'Sí, ALAMAR BEACH HOUSE está habilitada para eventos y celebraciones privadas. La terraza, el área de piscina y los espacios internos son perfectos para reuniones. Solo pedimos mantener un control adecuado de los decibeles en todo momento.',
   },
   {
     q: '¿Qué está incluido en la tarifa?',
