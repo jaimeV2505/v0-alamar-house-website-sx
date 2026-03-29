@@ -10,7 +10,7 @@ import {
 const faqs = [
   {
     q: '¿Cuántas personas puede alojar ALAMAR BEACH HOUSE?',
-    a: 'La casa tiene capacidad para hasta 12 personas. Dispone de 4 habitaciones, sofás-camas y camas auxiliares que brindan mayor comodidad y flexibilidad para grupos y familias.',
+    a: 'La casa tiene capacidad para hasta 20 personas. Dispone de 4 habitaciones, sofás-camas y camas auxiliares que brindan mayor comodidad y flexibilidad para grupos y familias.',
   },
   {
     q: '¿Se permiten mascotas en la propiedad?',
