@@ -22,7 +22,7 @@ const rooms = [
   {
     title: 'Habitación 4',
     description: 'Habitación versátil con dos camas sencillas, ideal para familias o grupos. Incluye camas auxiliares para mayor flexibilidad.',
-    details: ['2 camas sencillas + camas auxiliares', 'Opción de cuna', 'Espacio familiar', 'A/C y ventilador'],
+    details: ['2 camas sencillas + camas auxiliares', 'Espacio familiar', 'A/C y ventilador'],
     icon: <BedSingle size={22} className="text-[#1B4D5C]" />,
   },
 ]
@@ -54,7 +54,7 @@ export default function RoomsSection() {
             { icon: <BedDouble size={24} className="text-[#1B4D5C]" />, value: '4', label: 'Habitaciones' },
             { icon: <Bath size={24} className="text-[#1B4D5C]" />, value: '5', label: 'Baños' },
             { icon: <Users size={24} className="text-[#1B4D5C]" />, value: '20', label: 'Personas máx.' },
-            { icon: <BedSingle size={24} className="text-[#1B4D5C]" />, value: '10', label: 'Camas totales' },
+            { icon: <BedSingle size={24} className="text-[#1B4D5C]" />, value: '12', label: 'Camas totales' },
           ].map((stat, i) => (
             <div key={i} className="flex flex-col items-center gap-3 p-6 bg-[#F5F0E8] rounded-lg border border-[#E8E3D8] text-center">
               {stat.icon}
@@ -99,7 +99,6 @@ export default function RoomsSection() {
             <p className="font-sans text-sm font-semibold text-[#2C2C2C] mb-1">Capacidad flexible</p>
             <p className="font-sans text-sm text-[#666666] leading-relaxed">
               La casa cuenta con sofás-camas adicionales para ampliar la capacidad hasta 20 personas.
-              Además, disponemos de cunas para los más pequeños de la familia.
             </p>
           </div>
         </div>
