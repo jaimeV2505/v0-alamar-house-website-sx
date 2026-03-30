@@ -1,9 +1,11 @@
 import { MapPin, Navigation, Waves, TreePalm } from 'lucide-react'
+import { WatermarkWave } from '@/components/shared/watermarks'
 
 export default function LocationSection() {
   return (
-    <section className="bg-[#FAFAF8] py-24 px-6 md:px-12 lg:px-20">
-      <div className="max-w-7xl mx-auto">
+    <section className="relative grain-overlay bg-[#FAFAF8] py-24 px-6 md:px-12 lg:px-20 overflow-hidden">
+      <WatermarkWave position="left" opacity={0.09} />
+      <div className="relative max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           {/* Text */}
           <div>

@@ -1,4 +1,5 @@
 import { BedDouble, BedSingle, Bath, Users } from 'lucide-react'
+import { WatermarkWave } from '@/components/shared/watermarks'
 
 const rooms = [
   {
@@ -29,8 +30,9 @@ const rooms = [
 
 export default function RoomsSection() {
   return (
-    <section className="bg-[#FAFAF8] py-24 px-6 md:px-12 lg:px-20">
-      <div className="max-w-7xl mx-auto">
+    <section className="relative grain-overlay bg-[#FAFAF8] py-24 px-6 md:px-12 lg:px-20 overflow-hidden">
+      <WatermarkWave position="bottom" opacity={0.1} />
+      <div className="relative max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-16">
           <div className="flex items-center justify-center gap-3 mb-4">
