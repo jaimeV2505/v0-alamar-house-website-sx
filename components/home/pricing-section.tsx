@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { Check, Star } from 'lucide-react'
+import { WatermarkPalm } from '@/components/shared/watermarks'
 
 const included = [
   'Limpieza profunda incluida',
@@ -12,8 +13,9 @@ const included = [
 
 export default function PricingSection() {
   return (
-    <section id="precios" className="bg-[#FAFAF8] py-24 px-6 md:px-12 lg:px-20">
-      <div className="max-w-7xl mx-auto">
+    <section id="precios" className="relative grain-overlay bg-[#FAFAF8] py-24 px-6 md:px-12 lg:px-20 overflow-hidden">
+      <WatermarkPalm position="right" opacity={0.09} />
+      <div className="relative max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-16">
           <div className="flex items-center justify-center gap-3 mb-4">

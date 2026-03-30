@@ -6,6 +6,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion'
+import { WatermarkPalm } from '@/components/shared/watermarks'
 
 const faqs = [
   {
@@ -48,8 +49,9 @@ const faqs = [
 
 export default function FaqSection() {
   return (
-    <section id="faqs" className="bg-[#FAFAF8] py-24 px-6 md:px-12 lg:px-20">
-      <div className="max-w-3xl mx-auto">
+    <section id="faqs" className="relative grain-overlay bg-[#FAFAF8] py-24 px-6 md:px-12 lg:px-20 overflow-hidden">
+      <WatermarkPalm position="top-right" opacity={0.1} />
+      <div className="relative max-w-3xl mx-auto">
         {/* Header */}
         <div className="text-center mb-14">
           <div className="flex items-center justify-center gap-3 mb-4">

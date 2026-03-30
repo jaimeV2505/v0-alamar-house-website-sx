@@ -1,4 +1,5 @@
 import { Leaf, Users, Eye, Star } from 'lucide-react'
+import { WatermarkPalm } from '@/components/shared/watermarks'
 
 const experiences = [
   {
@@ -41,8 +42,9 @@ const experiences = [
 
 export default function ExperienceSection() {
   return (
-    <section id="experiencia" className="bg-[#FAFAF8] py-24 px-6 md:px-12 lg:px-20">
-      <div className="max-w-7xl mx-auto">
+    <section id="experiencia" className="relative grain-overlay bg-[#FAFAF8] py-24 px-6 md:px-12 lg:px-20 overflow-hidden">
+      <WatermarkPalm position="center" opacity={0.1} />
+      <div className="relative max-w-7xl mx-auto">
         {/* Section header */}
         <div className="text-center mb-20">
           <div className="flex items-center justify-center gap-3 mb-4">
