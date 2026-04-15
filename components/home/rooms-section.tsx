@@ -46,7 +46,7 @@ export default function RoomsSection() {
             Espacios diseñados<br />para el confort
           </h2>
           <p className="mt-5 font-sans text-base text-[#666666] max-w-xl mx-auto leading-relaxed">
-            4 habitaciones, 5 baños y capacidad para hasta 20 personas. La casa perfecta para toda la familia.
+            4 habitaciones, 5 baños y capacidad para hasta 16 personas. La casa perfecta para toda la familia.
           </p>
         </div>
 
@@ -100,7 +100,7 @@ export default function RoomsSection() {
           <div>
             <p className="font-sans text-sm font-semibold text-[#2C2C2C] mb-1">Capacidad flexible</p>
             <p className="font-sans text-sm text-[#666666] leading-relaxed">
-              La casa cuenta con sofás-camas adicionales para ampliar la capacidad hasta 20 personas.
+              La casa cuenta con sofás-camas adicionales para ampliar la capacidad hasta 16 personas.
             </p>
           </div>
         </div>

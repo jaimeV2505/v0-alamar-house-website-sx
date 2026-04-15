@@ -57,7 +57,7 @@ const amenities = [
   {
     icon: <Sofa size={22} />,
     title: 'Sofás-camas',
-    description: 'Sofás-camas adicionales para ampliar la capacidad hasta 20 personas cómodamente.',
+    description: 'Sofás-camas adicionales para ampliar la capacidad hasta 16 personas cómodamente.',
   },
   {
     icon: <PawPrint size={22} />,

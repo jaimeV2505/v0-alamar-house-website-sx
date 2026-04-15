@@ -15,7 +15,7 @@ const experiences = [
     icon: <Users size={20} className="text-[#7BA696]" />,
     tag: 'Unión familiar',
     title: 'Crea recuerdos inolvidables',
-    body: 'Con capacidad para hasta 20 personas, ALAMAR BEACH HOUSE es el escenario perfecto para reunir a quienes más quieres. Espacios amplios, cocina equipada y ambiente de celebración.',
+    body: 'Con capacidad para hasta 16 personas, ALAMAR BEACH HOUSE es el escenario perfecto para reunir a quienes más quieres. Espacios amplios, cocina equipada y ambiente de celebración.',
     image: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/4-kanXNwk7op5iMrgctUKalqax97xoBj.jpeg',
     imageAlt: 'Sala luminosa con diseño moderno y acceso al jardín',
     reverse: true,
